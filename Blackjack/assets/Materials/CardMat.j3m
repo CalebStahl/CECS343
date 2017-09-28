@@ -1,0 +1,8 @@
+Material My Material : MatDefs/CardMat.j3md {
+     MaterialParameters {
+        ColorMap : Textures/508fd-bicyclebacks.jpg
+        ColorMap2 : Textures/kingofhearts.jpg
+     }
+    AdditionalRenderState {
+    }
+}
