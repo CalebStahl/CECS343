@@ -9,10 +9,10 @@ Project Dependencies
     https://github.com/jMonkeyEngine-Contributions/Lemur
   
   Guava
-    >https://github.com/google/guava
+    https://github.com/google/guava
   
   Groovy
-    
-  
+    http://groovy-lang.org/index.html
   
   slf4j
+    https://www.slf4j.org/
