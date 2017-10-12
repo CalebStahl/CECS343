@@ -1,11 +1,14 @@
 package mygame;
 
+import com.google.common.base.CharMatcher;
 import com.simsilica.lemur.Button;
 import com.simsilica.lemur.GuiGlobals;
 import com.simsilica.lemur.Command;
 import com.simsilica.lemur.Container;
 import com.simsilica.lemur.Label;
 import com.simsilica.lemur.style.BaseStyles;
+import com.simsilica.lemur.component.BoxLayout;
+import com.simsilica.lemur.component.BorderLayout;
 import com.jme3.app.SimpleApplication;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
@@ -16,6 +19,8 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.simsilica.lemur.Axis;
+import com.simsilica.lemur.FillMode;
 
 public class Main extends SimpleApplication {
 
@@ -32,28 +37,61 @@ public class Main extends SimpleApplication {
     
     @Override
     public void simpleInitApp() {
-        flyCam.setMoveSpeed(50);
-        //flyCam.setEnabled(paused);
-        
+        //flyCam.setMoveSpeed(50);
+        flyCam.setEnabled(paused);
+        setDisplayFps(false);
+        setDisplayStatView(false);
         
         GuiGlobals.initialize(this);
         BaseStyles.loadGlassStyle();
         GuiGlobals.getInstance().getStyles().setDefaultStyle("glass");
         
-        Container myWindow = new Container();
-        guiNode.attachChild(myWindow);
-        myWindow.setLocalTranslation(300, 300, 0);
-        myWindow.addChild(new Label("Hello, World"));
+        Container mainWindow = new Container(new BorderLayout());
+        guiNode.attachChild(mainWindow);
+        guiNode.scale(3.0f);
+        mainWindow.setLocalTranslation(30, 100, 0);
+        //betWindow.setLocalTranslation(380, 300,0);
         
-        Button hit = myWindow.addChild(new Button("HIT!"));
+        Container actWinMain = new Container(new BorderLayout());
+        Container actionWindow = new Container(new BoxLayout(Axis.X, FillMode.Even));
+        actWinMain.addChild(new Label("Actions"), BorderLayout.Position.North);
+        actWinMain.addChild(actionWindow, BorderLayout.Position.Center);
+        mainWindow.addChild(actWinMain, BorderLayout.Position.West);
+        Button hit = actionWindow.addChild(new Button("HIT"));
+        Button stand = actionWindow.addChild(new Button("STAND"));
+        Button split = actionWindow.addChild(new Button("SPLIT"));
+        Button dbl = actionWindow.addChild(new Button("DOUBLE"));
+        
+        Container wallet  =  new Container (new BorderLayout());
+        wallet.addChild(new Label("Wallet"), BorderLayout.Position.North);
+        Label walNum = wallet.addChild(new Label("$ 10,000"), BorderLayout.Position.South);
+        wallet.setLocalTranslation(0, 340, 0);
+        guiNode.attachChild(wallet);
+        
+        Container betWinMain =  new Container(new BorderLayout());
+        Container betWindow = new Container(new BoxLayout(Axis.X, FillMode.Even));
+        betWinMain.addChild(betWindow, BorderLayout.Position.Center);
+        betWinMain.addChild(new Label("Bet"), BorderLayout.Position.North);
+        mainWindow.addChild(betWinMain, BorderLayout.Position.East);
+        Button fiveK = betWindow.addChild(new Button("$ 5,000"));
+        Button tenK = betWindow.addChild(new Button("$ 10,000"));
+        Button ofK = betWindow.addChild(new Button("$ 15,000"));
         hit.addClickCommands(new Command<Button>(){
             @Override
             public void execute(Button source){
                 System.out.println("This world is yours.");
             }
-        }); 
+        });
+        fiveK.addClickCommands(new Command<Button>(){
+           @Override
+           public void execute(Button source){
+               //String temp = "$ ";
+               //String digits = CharMatcher.DIGIT.retainFrom(walNum.getText);
+           }
+           
+        });
         
-        
+       
         
         
        createTable();
@@ -62,14 +100,15 @@ public class Main extends SimpleApplication {
         Node pivot = new Node("pivot");
         rootNode.attachChild(pivot);
         
-
-        
+        String cardName = "Textures/Cards/";
+        cardName = cardName.concat("2_of_spades.png");
         card = assetManager.loadModel("Models/basicCard.j3o");
         Material cardMat = assetManager.loadMaterial("Materials/CardMat.j3m");
-        cardMat.setTexture("ColorMap2", assetManager.loadTexture("Textures/kingofhearts.jpg"));
+        cardMat.setTexture("ColorMap2", assetManager.loadTexture(cardName));
         card.setMaterial(cardMat);
         card.setLocalTranslation(-1.0f, 2.5f, 0.0f);
         pivot.attachChild(card);
+        pivot.scale(0.60f);
     }
     
     @Override
@@ -82,8 +121,9 @@ public class Main extends SimpleApplication {
         tableTop.setLocalTranslation(0, 0, -5);
         tableTop.rotate(FastMath.HALF_PI,0,0);
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        mat.setTexture("ColorMap", assetManager.loadTexture("Textures/tabletop-casion.JPG"));
+        mat.setTexture("ColorMap", assetManager.loadTexture("Textures/tabletop-casino.JPG"));
         tableTop.setMaterial(mat);
+        tableTop.scale(.65f);
         rootNode.attachChild(tableTop);
         
         
@@ -93,6 +133,10 @@ public class Main extends SimpleApplication {
          DirectionalLight sun = new DirectionalLight();
         sun.setDirection(new Vector3f(-0.1f, -0.7f, -1.0f));
         rootNode.addLight(sun);
+    }
+    
+    public void createGui(){
+        
     }
     
 //    public Spatial createChip(){
