@@ -97,23 +97,21 @@ public class playState extends AbstractAppState {
         Button fiveK = betWindow.addChild(new Button("$ 5,000")); 
         Button tenK = betWindow.addChild(new Button("$ 10,000")); 
         Button ofK = betWindow.addChild(new Button("$ 15,000")); 
+        
         hit.addClickCommands(new Command<Button>(){ 
             @Override 
             public void execute(Button source){ 
                 System.out.println("This world is yours."); 
             } 
         }); 
+        
         fiveK.addClickCommands(new Command<Button>(){ 
            @Override 
            public void execute(Button source){ 
-               //String temp = "$ "; 
-               //String digits = CharMatcher.DIGIT.retainFrom(walNum.getText); 
            } 
             
         }); 
-         
-        
-         
+
          
        createTable(); 
        createLight(); 
@@ -138,7 +136,7 @@ public class playState extends AbstractAppState {
         super.cleanup(); 
     } 
      
-        public void createTable(){ 
+    public void createTable(){ 
         Box box = new Box(15, .2f, 15); 
         Geometry tableTop =  new Geometry("the table", box); 
         tableTop.setLocalTranslation(0, 0, -5); 
@@ -147,9 +145,7 @@ public class playState extends AbstractAppState {
         mat.setTexture("ColorMap", assetManager.loadTexture("Textures/tabletop-casino.JPG")); 
         tableTop.setMaterial(mat); 
         tableTop.scale(.65f); 
-        rootNode.attachChild(tableTop); 
-         
-         
+        rootNode.attachChild(tableTop);  
     } 
      
     public void createLight(){ 

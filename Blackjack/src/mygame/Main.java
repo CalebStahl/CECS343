@@ -3,7 +3,8 @@ package mygame;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.scene.Spatial;
-import mygame.gameState.playState; 
+import mygame.gameState.playState;
+import mygane.menuState.mainMenu;
 
 public class Main extends SimpleApplication {
 
@@ -11,12 +12,6 @@ public class Main extends SimpleApplication {
         Main app = new Main();
         app.start();
     }
-
-    protected Spatial card;
-    protected Spatial pokerChip1;
-    protected Spatial pokerChip2;
-    protected Spatial pokerChip3;
-    protected Spatial pokerChip4;
     
     @Override
     public void simpleInitApp() {
@@ -24,6 +19,6 @@ public class Main extends SimpleApplication {
         flyCam.setEnabled(paused);
         setDisplayFps(false);
         setDisplayStatView(false);
-        stateManager.attach(new playState(this)); 
+        stateManager.attach(new mainMenu(this)); 
     }
 }
