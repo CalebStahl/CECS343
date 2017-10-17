@@ -138,7 +138,7 @@ public class playState extends AbstractAppState {
      
     public void createTable(){ 
         Box box = new Box(15, .2f, 15); 
-        Geometry tableTop =  new Geometry("the table", box); 
+        Geometry tableTop =  new Geometry("table", box); 
         tableTop.setLocalTranslation(0, 0, -5); 
         tableTop.rotate(FastMath.HALF_PI,0,0); 
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md"); 
@@ -149,7 +149,7 @@ public class playState extends AbstractAppState {
     } 
      
     public void createLight(){ 
-         DirectionalLight sun = new DirectionalLight(); 
+        DirectionalLight sun = new DirectionalLight(); 
         sun.setDirection(new Vector3f(-0.1f, -0.7f, -1.0f)); 
         rootNode.addLight(sun); 
     } 

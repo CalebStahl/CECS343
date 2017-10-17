@@ -15,6 +15,14 @@ import com.jme3.material.Material;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.simsilica.lemur.Axis;
+import com.simsilica.lemur.Button;
+import com.simsilica.lemur.Command;
+import com.simsilica.lemur.Container;
+import com.simsilica.lemur.FillMode;
+import com.simsilica.lemur.component.BorderLayout;
+import com.simsilica.lemur.component.BoxLayout;
+import net.java.games.input.Component;
 
 /**
  *
@@ -47,7 +55,10 @@ public class mainMenu extends AbstractAppState{
         
         
         //Generating Cards for Main Menu Scene
-        pokerChip1 = createCard("Textures/green.jpg");
+        pokerChip1 = assetManager.loadModel("Models/PokerChip.j3o");
+        Material pokerMat1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        pokerMat1.setTexture("ColorMap", assetManager.loadTexture("Textures/green.jpg"));
+        pokerChip1.setMaterial(pokerMat1);
         pokerChip1.setLocalTranslation(-3.5f, 0.0f, 0.0f);
         pokerChip1.rotate(-5.0f,0.0f,1.0f);
         pivot.attachChild(pokerChip1);
@@ -76,6 +87,15 @@ public class mainMenu extends AbstractAppState{
         pokerChip4.rotate(-5.0f,0.0f,0.0f);
         pivot.attachChild(pokerChip4);
         
+//        Container mmWindow = new Container(new BoxLayout(Axis.X, FillMode.Even));
+//        guiNode.attachChild(mmWindow);
+//        Button playGame = mmWindow.addChild(new Button("Play Game"));
+//        playGame.addClickCommands(new Command<Button>(){
+//            @Override
+//            public void execute(Button source){
+//                
+//            }
+//        });
         
     }
     
@@ -94,11 +114,10 @@ public class mainMenu extends AbstractAppState{
         
     }
     
-    public Spatial createCard(String cardFace){
-        pokerChip1 = assetManager.loadModel("Models/PokerChip.j3o");
-        Material pokerMat1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        pokerMat1.setTexture("ColorMap", assetManager.loadTexture(cardFace));
-        pokerChip1.setMaterial(pokerMat1);
-        
-    }
+//    public Spatial createChip(String cardFace){
+//        pokerChip1 = assetManager.loadModel("Models/PokerChip.j3o");
+//        Material pokerMat1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+//        pokerMat1.setTexture("ColorMap", assetManager.loadTexture(cardFace));
+//        pokerChip1.setMaterial(pokerMat1);
+//    }
 }
