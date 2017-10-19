@@ -16,9 +16,10 @@ public class Main extends SimpleApplication {
     @Override
     public void simpleInitApp() {
         //flyCam.setMoveSpeed(50);
+        guiNode.scale(3.0f);
         flyCam.setEnabled(paused);
         setDisplayFps(false);
         setDisplayStatView(false);
-        stateManager.attach(new mainMenu(this)); 
+        stateManager.attach(new mainMenu(this));
     }
 }

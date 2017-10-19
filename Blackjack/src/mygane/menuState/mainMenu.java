@@ -12,6 +12,7 @@ import com.jme3.app.state.AppStateManager;
 import com.jme3.asset.AssetManager;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
+import com.jme3.math.Matrix3f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
@@ -20,9 +21,13 @@ import com.simsilica.lemur.Button;
 import com.simsilica.lemur.Command;
 import com.simsilica.lemur.Container;
 import com.simsilica.lemur.FillMode;
+import com.simsilica.lemur.GuiGlobals;
 import com.simsilica.lemur.component.BorderLayout;
 import com.simsilica.lemur.component.BoxLayout;
+import com.simsilica.lemur.style.BaseStyles;
 import net.java.games.input.Component;
+import mygame.gameState.playState;
+import mygame.settingState.settingsState;
 
 /**
  *
@@ -34,24 +39,35 @@ public class mainMenu extends AbstractAppState{
     private final Node localRootNode = new Node("main menu");
     private Node pivot = new Node("pivot");
     private final AssetManager assetManager;
+    private final AppStateManager stateManager;
+    private boolean playAppState = false;
+    private boolean settingsAppState = false;
+    private SimpleApplication app;
     
     protected Spatial pokerChip1;
     protected Spatial pokerChip2;
     protected Spatial pokerChip3;
     protected Spatial pokerChip4;
     
+    
     public mainMenu(SimpleApplication app){
         rootNode = app.getRootNode();
         guiNode = app.getGuiNode();
         assetManager = app.getAssetManager();
+        stateManager = app.getStateManager();
     }
     
     @Override
-    public void initialize(AppStateManager stateManager, Application app){
+    public void initialize(final AppStateManager stateManager, Application app){
         super.initialize(stateManager, app);
         rootNode.attachChild(localRootNode);  //Add main menu to screen        
         localRootNode.attachChild(pivot);     //Attaching Cards to main menu
-        createLight();       
+        this.app = (SimpleApplication) app;
+        createLight();  
+        
+        GuiGlobals.initialize((Application) app); 
+        BaseStyles.loadGlassStyle(); 
+        GuiGlobals.getInstance().getStyles().setDefaultStyle("glass");
         
         
         //Generating Cards for Main Menu Scene
@@ -60,7 +76,7 @@ public class mainMenu extends AbstractAppState{
         pokerMat1.setTexture("ColorMap", assetManager.loadTexture("Textures/green.jpg"));
         pokerChip1.setMaterial(pokerMat1);
         pokerChip1.setLocalTranslation(-3.5f, 0.0f, 0.0f);
-        pokerChip1.rotate(-5.0f,0.0f,1.0f);
+        pokerChip1.rotate(-5.0f,0.0f,0.0f);
         pivot.attachChild(pokerChip1);
         
         pokerChip2 = assetManager.loadModel("Models/PokerChip.j3o");
@@ -87,22 +103,37 @@ public class mainMenu extends AbstractAppState{
         pokerChip4.rotate(-5.0f,0.0f,0.0f);
         pivot.attachChild(pokerChip4);
         
-//        Container mmWindow = new Container(new BoxLayout(Axis.X, FillMode.Even));
-//        guiNode.attachChild(mmWindow);
-//        Button playGame = mmWindow.addChild(new Button("Play Game"));
-//        playGame.addClickCommands(new Command<Button>(){
-//            @Override
-//            public void execute(Button source){
-//                
-//            }
-//        });
+        Container mmWindow = new Container(new BoxLayout(Axis.X, FillMode.Even));
+        guiNode.attachChild(mmWindow);
+        mmWindow.setLocalTranslation(30, 100, 0);
+        Button playGame = mmWindow.addChild(new Button("Play Game"));
+        Button settings = mmWindow.addChild(new Button("Settings"));
+        playGame.addClickCommands(new Command<Button>(){
+            @Override
+            public void execute(Button source){
+                playAppState=true;
+            }
+        });
+        settings.addClickCommands(new Command<Button>(){
+            @Override
+            public void execute(Button source){
+                settingsAppState=true;
+            }
+        });
         
     }
     
     public void createLight(){ 
-         DirectionalLight sun = new DirectionalLight(); 
+        DirectionalLight sun = new DirectionalLight(); 
         sun.setDirection(new Vector3f(-0.1f, -0.7f, -1.0f)); 
         rootNode.addLight(sun); 
+    }
+    
+    @Override
+    public void cleanup(){
+        rootNode.detachChild(localRootNode);
+        guiNode.detachAllChildren();
+        super.cleanup();
     }
     
     @Override
@@ -111,6 +142,13 @@ public class mainMenu extends AbstractAppState{
         pokerChip2.rotate(0,0,(2*tpf));
         pokerChip3.rotate(0,0,(2*tpf));
         pokerChip4.rotate(0,0,(2*tpf));
+        if(playAppState==true||settingsAppState==true){
+            stateManager.detach(this);
+            if(playAppState==true)
+                stateManager.attach(new playState(this.app));
+            if(settingsAppState==true)
+                stateManager.attach(new settingsState(this.app));
+        }
         
     }
     

@@ -69,7 +69,6 @@ public class playState extends AbstractAppState {
          
         Container mainWindow = new Container(new BorderLayout()); 
         guiNode.attachChild(mainWindow); 
-        guiNode.scale(3.0f); 
         mainWindow.setLocalTranslation(30, 100, 0); 
         //betWindow.setLocalTranslation(380, 300,0); 
          
