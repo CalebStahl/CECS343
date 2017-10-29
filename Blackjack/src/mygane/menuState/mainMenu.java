@@ -49,7 +49,12 @@ public class mainMenu extends AbstractAppState{
     protected Spatial pokerChip3;
     protected Spatial pokerChip4;
     
-    
+    /**
+     * First function that is called when when changing play states.
+     * Gets managers and relevant nodes from main.
+     * @param - SimpleApplication
+     */
+
     public mainMenu(SimpleApplication app){
         rootNode = app.getRootNode();
         guiNode = app.getGuiNode();
@@ -57,6 +62,9 @@ public class mainMenu extends AbstractAppState{
         stateManager = app.getStateManager();
     }
     
+    /**
+     * Called after mainMenu finishes.
+     */
     @Override
     public void initialize(final AppStateManager stateManager, Application app){
         super.initialize(stateManager, app);
