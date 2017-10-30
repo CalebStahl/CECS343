@@ -39,6 +39,8 @@ public class playState extends AbstractAppState {
     private final Node guiNode; 
     private final Node localRootNode = new Node("main game"); 
     private final AssetManager assetManager; 
+    private Container betGUI;
+    private Container actionGUI;
      
     protected Spatial card; 
     protected Spatial pokerChip1; 
@@ -58,6 +60,7 @@ public class playState extends AbstractAppState {
         super.initialize(stateManager, app); 
         rootNode.attachChild(localRootNode); 
          
+        
          
         //flyCam.setEnabled(paused); 
         //setDisplayFps(false); 
@@ -70,17 +73,12 @@ public class playState extends AbstractAppState {
         Container mainWindow = new Container(new BorderLayout()); 
         guiNode.attachChild(mainWindow); 
         mainWindow.setLocalTranslation(30, 100, 0); 
-        //betWindow.setLocalTranslation(380, 300,0); 
+        betGUI = getBetMenu();
+        mainWindow.addChild(betGUI);    
+        createTable(); 
+        createLight(); 
          
-        Container actWinMain = new Container(new BorderLayout()); 
-        Container actionWindow = new Container(new BoxLayout(Axis.X, FillMode.Even)); 
-        actWinMain.addChild(new Label("Actions"), BorderLayout.Position.North); 
-        actWinMain.addChild(actionWindow, BorderLayout.Position.Center); 
-        mainWindow.addChild(actWinMain, BorderLayout.Position.West); 
-        Button hit = actionWindow.addChild(new Button("HIT")); 
-        Button stand = actionWindow.addChild(new Button("STAND")); 
-        Button split = actionWindow.addChild(new Button("SPLIT")); 
-        Button dbl = actionWindow.addChild(new Button("DOUBLE")); 
+         
          
         Container wallet  =  new Container (new BorderLayout()); 
         wallet.addChild(new Label("Wallet"), BorderLayout.Position.North); 
@@ -88,32 +86,7 @@ public class playState extends AbstractAppState {
         wallet.setLocalTranslation(0, 340, 0); 
         guiNode.attachChild(wallet); 
          
-        Container betWinMain =  new Container(new BorderLayout()); 
-        Container betWindow = new Container(new BoxLayout(Axis.X, FillMode.Even)); 
-        betWinMain.addChild(betWindow, BorderLayout.Position.Center); 
-        betWinMain.addChild(new Label("Bet"), BorderLayout.Position.North); 
-        mainWindow.addChild(betWinMain, BorderLayout.Position.East); 
-        Button fiveK = betWindow.addChild(new Button("$ 5,000")); 
-        Button tenK = betWindow.addChild(new Button("$ 10,000")); 
-        Button ofK = betWindow.addChild(new Button("$ 15,000")); 
         
-        hit.addClickCommands(new Command<Button>(){ 
-            @Override 
-            public void execute(Button source){ 
-                System.out.println("This world is yours."); 
-            } 
-        }); 
-        
-        fiveK.addClickCommands(new Command<Button>(){ 
-           @Override 
-           public void execute(Button source){ 
-           } 
-            
-        }); 
-
-         
-       createTable(); 
-       createLight(); 
          
         Node pivot = new Node("pivot"); 
         rootNode.attachChild(pivot); 
@@ -153,9 +126,42 @@ public class playState extends AbstractAppState {
         rootNode.addLight(sun); 
     } 
      
-    public void betMenu(){ 
-         
+    public Container getBetMenu(){ 
+        Container betWinMain =  new Container(new BorderLayout()); 
+        Container betWindow = new Container(new BoxLayout(Axis.X, FillMode.Even)); 
+        betWinMain.addChild(betWindow, BorderLayout.Position.Center); 
+        betWinMain.addChild(new Label("Bet"), BorderLayout.Position.North); 
+        //mainWindow.addChild(betWinMain, BorderLayout.Position.East); 
+        Button fiveK = betWindow.addChild(new Button("$ 5,000")); 
+        Button tenK = betWindow.addChild(new Button("$ 10,000")); 
+        Button ofK = betWindow.addChild(new Button("$ 15,000")); 
+        fiveK.addClickCommands(new Command<Button>(){ 
+           @Override 
+           public void execute(Button source){ 
+        } 
+            
+        }); 
+        return betWinMain;
     } 
+    
+    public Container getActionMenu(){
+        Container actWinMain = new Container(new BorderLayout()); 
+        Container actionWindow = new Container(new BoxLayout(Axis.X, FillMode.Even)); 
+        actWinMain.addChild(new Label("Actions"), BorderLayout.Position.North); 
+        actWinMain.addChild(actionWindow, BorderLayout.Position.Center); 
+        //mainWindow.addChild(actWinMain, BorderLayout.Position.West); 
+        Button hit = actionWindow.addChild(new Button("HIT")); 
+        Button stand = actionWindow.addChild(new Button("STAND")); 
+        Button split = actionWindow.addChild(new Button("SPLIT")); 
+        Button dbl = actionWindow.addChild(new Button("DOUBLE"));
+        hit.addClickCommands(new Command<Button>(){ 
+            @Override 
+            public void execute(Button source){ 
+                System.out.println("This world is yours."); 
+            } 
+        }); 
+        return actWinMain;
+    }
 //        public Spatial createChip(){
 //          pokerChip1 = assetManager.loadModel("Models/PokerChip.j3o");
 //          Material pokerMat1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
