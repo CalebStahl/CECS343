@@ -153,7 +153,7 @@ public class playState extends AbstractAppState {
         rootNode.addLight(sun); 
     } 
      
-    public void createGui(){ 
+    public void betMenu(){ 
          
     } 
 //        public Spatial createChip(){
