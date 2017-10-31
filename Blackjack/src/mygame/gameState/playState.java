@@ -10,6 +10,10 @@ import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.SimpleApplication; 
 import com.jme3.app.state.AppStateManager; 
 import com.jme3.asset.AssetManager; 
+import com.jme3.input.InputManager;
+import com.jme3.input.KeyInput;
+import com.jme3.input.controls.ActionListener;
+import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight; 
 import com.jme3.material.Material; 
 import com.jme3.math.FastMath; 
@@ -39,8 +43,10 @@ public class playState extends AbstractAppState {
     private final Node guiNode; 
     private final Node localRootNode = new Node("main game"); 
     private final AssetManager assetManager; 
+    private final InputManager inputManager;
     private Container betGUI;
     private Container actionGUI;
+    private Container escGUI;
      
     protected Spatial card; 
     protected Spatial pokerChip1; 
@@ -52,14 +58,15 @@ public class playState extends AbstractAppState {
     public playState(SimpleApplication app){ 
             rootNode  =  app.getRootNode(); 
             guiNode  =  app.getGuiNode(); 
-            assetManager = app.getAssetManager(); 
+            assetManager = app.getAssetManager();
+            inputManager = app.getInputManager();
     } 
      
     @Override 
     public void initialize(AppStateManager stateManager, Application app){ 
         super.initialize(stateManager, app); 
         rootNode.attachChild(localRootNode); 
-         
+        initKeys();
         
          
         //flyCam.setEnabled(paused); 
@@ -74,7 +81,8 @@ public class playState extends AbstractAppState {
         guiNode.attachChild(mainWindow); 
         mainWindow.setLocalTranslation(30, 100, 0); 
         betGUI = getBetMenu();
-        mainWindow.addChild(betGUI);    
+        mainWindow.addChild(betGUI); 
+        escGUI = createEscGUI();
         createTable(); 
         createLight(); 
          
@@ -85,9 +93,7 @@ public class playState extends AbstractAppState {
         Label walNum = wallet.addChild(new Label("$ 10,000"), BorderLayout.Position.South); 
         wallet.setLocalTranslation(0, 340, 0); 
         guiNode.attachChild(wallet); 
-         
-        
-         
+                         
         Node pivot = new Node("pivot"); 
         rootNode.attachChild(pivot); 
          
@@ -161,6 +167,31 @@ public class playState extends AbstractAppState {
             } 
         }); 
         return actWinMain;
+    }
+    
+    private void initKeys(){
+        inputManager.addMapping("ESCAPE", new KeyTrigger(KeyInput.KEY_ESCAPE));
+        inputManager.addListener(actionListener, "ESCAPE");
+    }
+    
+    private final ActionListener actionListener = new ActionListener() {
+        @Override
+        public void onAction(String name, boolean keyPressed, float tpf) {
+            if (name.equals("ESCAPE") && !keyPressed) {
+                guiNode.attachChild(escGUI);
+            }
+        }
+    };
+    
+    private Container createEscGUI(){
+        Container escWindow = new Container(new BorderLayout());
+        Container escButtons = new Container(new BoxLayout(Axis.Y, FillMode.Even));
+        escWindow.addChild(new Label("ESCAPE MENU"), BorderLayout.Position.North);
+        Button _MainMenu = escButtons.addChild(new Button("MAIN MENU"));
+        Button _Settings = escButtons.addChild(new Button("SETTINGS"));
+        Button _SaveGame = escButtons.addChild(new Button("Save Game"));
+        escWindow.addChild(escButtons);
+        return escWindow;
     }
 //        public Spatial createChip(){
 //          pokerChip1 = assetManager.loadModel("Models/PokerChip.j3o");
