@@ -47,12 +47,17 @@ public class playState extends AbstractAppState {
     private Container betGUI;
     private Container actionGUI;
     private Container escGUI;
+    private Container mainWindow;
      
     protected Spatial card; 
     protected Spatial pokerChip1; 
     protected Spatial pokerChip2; 
     protected Spatial pokerChip3; 
-    protected Spatial pokerChip4; 
+    protected Spatial pokerChip4;
+    
+    private double bet = 0;
+    private double multiplier = 0;
+    private double 
      
      
     public playState(SimpleApplication app){ 
@@ -65,7 +70,7 @@ public class playState extends AbstractAppState {
     @Override 
     public void initialize(AppStateManager stateManager, Application app){ 
         super.initialize(stateManager, app); 
-        rootNode.attachChild(localRootNode); 
+        rootNode.attachChild(localRootNode);
         initKeys();
         
          
@@ -80,19 +85,18 @@ public class playState extends AbstractAppState {
         Container mainWindow = new Container(new BorderLayout()); 
         guiNode.attachChild(mainWindow); 
         mainWindow.setLocalTranslation(30, 100, 0); 
-        betGUI = getBetMenu();
-        mainWindow.addChild(betGUI); 
-        escGUI = createEscGUI();
+        betGUI = getBetMenu(); 
+        escGUI = getEscMenu();
+        actionGUI = getActionMenu();
         createTable(); 
         createLight(); 
-         
          
          
         Container wallet  =  new Container (new BorderLayout()); 
         wallet.addChild(new Label("Wallet"), BorderLayout.Position.North); 
         Label walNum = wallet.addChild(new Label("$ 10,000"), BorderLayout.Position.South); 
         wallet.setLocalTranslation(0, 340, 0); 
-        guiNode.attachChild(wallet); 
+        mainWindow.attachChild(wallet); 
                          
         Node pivot = new Node("pivot"); 
         rootNode.attachChild(pivot); 
@@ -113,7 +117,18 @@ public class playState extends AbstractAppState {
         rootNode.detachChild(localRootNode); 
         super.cleanup(); 
     } 
-     
+    
+    public void update(){
+        if(bet==0){
+            guiNode.attachChild(betGUI);
+        }
+        if(bet>0){
+            guiNode.detachChild(betGUI);
+            guiNode.attachChild(actionGUI);
+            
+        }
+    }
+    
     public void createTable(){ 
         Box box = new Box(15, .2f, 15); 
         Geometry tableTop =  new Geometry("table", box); 
@@ -170,28 +185,41 @@ public class playState extends AbstractAppState {
     }
     
     private void initKeys(){
+        inputManager.deleteMapping(SimpleApplication.INPUT_MAPPING_EXIT);
         inputManager.addMapping("ESCAPE", new KeyTrigger(KeyInput.KEY_ESCAPE));
         inputManager.addListener(actionListener, "ESCAPE");
+         
     }
     
     private final ActionListener actionListener = new ActionListener() {
         @Override
         public void onAction(String name, boolean keyPressed, float tpf) {
             if (name.equals("ESCAPE") && !keyPressed) {
+                guiNode.detachAllChildren();
                 guiNode.attachChild(escGUI);
             }
         }
     };
     
-    private Container createEscGUI(){
+    private Container getEscMenu(){
         Container escWindow = new Container(new BorderLayout());
         Container escButtons = new Container(new BoxLayout(Axis.Y, FillMode.Even));
         escWindow.addChild(new Label("ESCAPE MENU"), BorderLayout.Position.North);
         Button _MainMenu = escButtons.addChild(new Button("MAIN MENU"));
         Button _Settings = escButtons.addChild(new Button("SETTINGS"));
         Button _SaveGame = escButtons.addChild(new Button("Save Game"));
+        Button _Cancel = escButtons.addChild(new Button("Cancel"));
         escWindow.addChild(escButtons);
+        escWindow.setLocalTranslation(150, 150,0);        
+        _Cancel.addClickCommands(new Command<Button>(){ 
+            @Override 
+            public void execute(Button source){ 
+                guiNode.attach()
+            } 
+        });
         return escWindow;
+    }
+        
     }
 //        public Spatial createChip(){
 //          pokerChip1 = assetManager.loadModel("Models/PokerChip.j3o");
