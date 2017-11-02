@@ -57,7 +57,7 @@ public class playState extends AbstractAppState {
     
     private double bet = 0;
     private double multiplier = 0;
-    private double 
+    //private double 
      
      
     public playState(SimpleApplication app){ 
@@ -118,7 +118,9 @@ public class playState extends AbstractAppState {
         super.cleanup(); 
     } 
     
+    @Override
     public void update(){
+        super.update();
         if(bet==0){
             guiNode.attachChild(betGUI);
         }
@@ -204,8 +206,8 @@ public class playState extends AbstractAppState {
     private Container getEscMenu(){
         Container escWindow = new Container(new BorderLayout());
         Container escButtons = new Container(new BoxLayout(Axis.Y, FillMode.Even));
-        escWindow.addChild(new Label("ESCAPE MENU"), BorderLayout.Position.North);
-        Button _MainMenu = escButtons.addChild(new Button("MAIN MENU"));
+        escWindow.addChild(new Label("Escape Menu"), BorderLayout.Position.North);
+        Button _MainMenu = escButtons.addChild(new Button("Main Menu"));
         Button _Settings = escButtons.addChild(new Button("SETTINGS"));
         Button _SaveGame = escButtons.addChild(new Button("Save Game"));
         Button _Cancel = escButtons.addChild(new Button("Cancel"));
@@ -214,7 +216,14 @@ public class playState extends AbstractAppState {
         _Cancel.addClickCommands(new Command<Button>(){ 
             @Override 
             public void execute(Button source){ 
-                guiNode.attach()
+                if(bet==0){
+                    guiNode.attachChild(betGUI);
+                }
+                 if(bet>0){
+                    guiNode.detachChild(betGUI);
+                    guiNode.attachChild(actionGUI);
+            
+                }
             } 
         });
         return escWindow;
