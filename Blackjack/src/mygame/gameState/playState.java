@@ -119,10 +119,11 @@ public class playState extends AbstractAppState {
     } 
     
     @Override
-    public void update(){
-        super.update();
+    public void update(float tpf){
+        //super.update();
         if(bet==0){
-            guiNode.attachChild(betGUI);
+            if (guiNode.getChild()==null){
+                guiNode.attachChild(betGUI);
         }
         if(bet>0){
             guiNode.detachChild(betGUI);
