@@ -44,10 +44,11 @@ public class playState extends AbstractAppState {
     private final Node localRootNode = new Node("main game"); 
     private final AssetManager assetManager; 
     private final InputManager inputManager;
+    //private Container GUI_Main; //Main Container all playState GUI Spatials will attach to
     private Container betGUI;
     private Container actionGUI;
     private Container escGUI;
-    private Container mainWindow;
+    private Container wallet;
      
     protected Spatial card; 
     protected Spatial pokerChip1; 
@@ -78,29 +79,30 @@ public class playState extends AbstractAppState {
         //setDisplayFps(false); 
         //setDisplayStatView(false); 
          
+        //Establishing Basic GUI Theme: CHANGE LATER?
         GuiGlobals.initialize((Application) app); 
         BaseStyles.loadGlassStyle(); 
-        GuiGlobals.getInstance().getStyles().setDefaultStyle("glass"); 
-         
-        Container mainWindow = new Container(new BorderLayout()); 
-        guiNode.attachChild(mainWindow); 
-        mainWindow.setLocalTranslation(30, 100, 0); 
+        GuiGlobals.getInstance().getStyles().setDefaultStyle("glass");
+        //GUI_Main= new Container(new BorderLayout());
+        //guiNode.attachChild(GUI_Main); 
+        //GUI_Main.setLocalTranslation(30, 100, 0); 
         betGUI = getBetMenu(); 
         escGUI = getEscMenu();
         actionGUI = getActionMenu();
         createTable(); 
         createLight(); 
          
-         
-        Container wallet  =  new Container (new BorderLayout()); 
+        //Wallet GUI Spatial 
+        wallet  =  new Container (new BorderLayout()); 
         wallet.addChild(new Label("Wallet"), BorderLayout.Position.North); 
         Label walNum = wallet.addChild(new Label("$ 10,000"), BorderLayout.Position.South); 
         wallet.setLocalTranslation(0, 340, 0); 
-        mainWindow.attachChild(wallet); 
+        guiNode.attachChild(wallet); 
                          
         Node pivot = new Node("pivot"); 
         rootNode.attachChild(pivot); 
-         
+        
+        //Card Model for demonstration
         String cardName = "Textures/Cards/"; 
         cardName = cardName.concat("2_of_spades.png"); 
         card = assetManager.loadModel("Models/basicCard.j3o"); 
@@ -122,20 +124,23 @@ public class playState extends AbstractAppState {
     public void update(float tpf){
         //super.update();
         if(bet==0){
-            if (guiNode.getChild()==null){
+            if (guiNode.getChildIndex(betGUI)==-1){
+                System.out.println("Does this even work?");
                 guiNode.attachChild(betGUI);
+            }
         }
         if(bet>0){
-            guiNode.detachChild(betGUI);
-            guiNode.attachChild(actionGUI);
-            
+            if(guiNode.getChildIndex(actionGUI)==-1){
+                guiNode.detachChild(betGUI);
+                guiNode.attachChild(actionGUI);
+            }
         }
     }
     
     public void createTable(){ 
         Box box = new Box(15, .2f, 15); 
         Geometry tableTop =  new Geometry("table", box); 
-        tableTop.setLocalTranslation(0, 0, -5); 
+        tableTop.setLocalTranslation(0, 0, -5); //-5 Allow for card to be in front of the "table"
         tableTop.rotate(FastMath.HALF_PI,0,0); 
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md"); 
         mat.setTexture("ColorMap", assetManager.loadTexture("Textures/tabletop-casino.JPG")); 
@@ -143,15 +148,18 @@ public class playState extends AbstractAppState {
         tableTop.scale(.65f); 
         rootNode.attachChild(tableTop);  
     } 
-     
+    
+    //Light needed for spatials to be illuminated
     public void createLight(){ 
         DirectionalLight sun = new DirectionalLight(); 
         sun.setDirection(new Vector3f(-0.1f, -0.7f, -1.0f)); 
         rootNode.addLight(sun); 
     } 
-     
+    
+    //
     public Container getBetMenu(){ 
-        Container betWinMain =  new Container(new BorderLayout()); 
+        Container betWinMain =  new Container(new BorderLayout());
+        betWinMain.setLocalTranslation(90,50,0);
         Container betWindow = new Container(new BoxLayout(Axis.X, FillMode.Even)); 
         betWinMain.addChild(betWindow, BorderLayout.Position.Center); 
         betWinMain.addChild(new Label("Bet"), BorderLayout.Position.North); 
@@ -161,15 +169,18 @@ public class playState extends AbstractAppState {
         Button ofK = betWindow.addChild(new Button("$ 15,000")); 
         fiveK.addClickCommands(new Command<Button>(){ 
            @Override 
-           public void execute(Button source){ 
-        } 
-            
+           public void execute(Button source){
+               Label mLabel = (Label) wallet.getChild(0);
+               String amt =  mLabel.getText().replaceAll("[[^\\\\d.]+\", \"\");
+               //System.out.println(parseInt((wallet.getChild())));
+        }             
         }); 
         return betWinMain;
     } 
     
     public Container getActionMenu(){
-        Container actWinMain = new Container(new BorderLayout()); 
+        Container actWinMain = new Container(new BorderLayout());
+        actWinMain.setLocalTranslation(90,50,0);
         Container actionWindow = new Container(new BoxLayout(Axis.X, FillMode.Even)); 
         actWinMain.addChild(new Label("Actions"), BorderLayout.Position.North); 
         actWinMain.addChild(actionWindow, BorderLayout.Position.Center); 
@@ -194,18 +205,28 @@ public class playState extends AbstractAppState {
          
     }
     
+    //Needs to be changed so that instead of adding escGUI,
+    //It will add the last GUI elements that were in scene
     private final ActionListener actionListener = new ActionListener() {
         @Override
         public void onAction(String name, boolean keyPressed, float tpf) {
             if (name.equals("ESCAPE") && !keyPressed) {
-                guiNode.detachAllChildren();
-                guiNode.attachChild(escGUI);
+                if(guiNode.getChildIndex(escGUI)==-1){
+                    guiNode.detachAllChildren();
+                    guiNode.attachChild(escGUI);
+                }
+                else{
+                   guiNode.detachChild(escGUI);
+                   guiNode.attachChild(betGUI);
+                }
+                
             }
         }
     };
     
     private Container getEscMenu(){
         Container escWindow = new Container(new BorderLayout());
+        escWindow.setLocalTranslation(180, 250,0); 
         Container escButtons = new Container(new BoxLayout(Axis.Y, FillMode.Even));
         escWindow.addChild(new Label("Escape Menu"), BorderLayout.Position.North);
         Button _MainMenu = escButtons.addChild(new Button("Main Menu"));
@@ -213,23 +234,22 @@ public class playState extends AbstractAppState {
         Button _SaveGame = escButtons.addChild(new Button("Save Game"));
         Button _Cancel = escButtons.addChild(new Button("Cancel"));
         escWindow.addChild(escButtons);
-        escWindow.setLocalTranslation(150, 150,0);        
         _Cancel.addClickCommands(new Command<Button>(){ 
             @Override 
             public void execute(Button source){ 
                 if(bet==0){
+                    guiNode.detachChild(escGUI);
                     guiNode.attachChild(betGUI);
                 }
                  if(bet>0){
-                    guiNode.detachChild(betGUI);
+                    guiNode.detachChild(escGUI);
                     guiNode.attachChild(actionGUI);
             
                 }
             } 
         });
         return escWindow;
-    }
-        
+    }        
     }
 //        public Spatial createChip(){
 //          pokerChip1 = assetManager.loadModel("Models/PokerChip.j3o");

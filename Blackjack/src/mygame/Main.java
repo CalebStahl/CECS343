@@ -14,7 +14,7 @@ public class Main extends SimpleApplication {
     @Override
     public void simpleInitApp() {
         //flyCam.setMoveSpeed(50);
-        guiNode.scale(3.0f);
+        guiNode.scale(4.0f);
         flyCam.setEnabled(paused);
         setDisplayFps(false);
         setDisplayStatView(false);
