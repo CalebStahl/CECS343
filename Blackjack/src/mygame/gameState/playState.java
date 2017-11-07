@@ -166,13 +166,23 @@ public class playState extends AbstractAppState {
         //mainWindow.addChild(betWinMain, BorderLayout.Position.East); 
         Button fiveK = betWindow.addChild(new Button("$ 5,000")); 
         Button tenK = betWindow.addChild(new Button("$ 10,000")); 
-        Button ofK = betWindow.addChild(new Button("$ 15,000")); 
+        Button ftK = betWindow.addChild(new Button("$ 15,000")); 
         fiveK.addClickCommands(new Command<Button>(){ 
            @Override 
            public void execute(Button source){
-               Label mLabel = (Label) wallet.getChild(0);
-               String amt =  mLabel.getText().replaceAll("[[^\\\\d.]+\", \"\");
-               //System.out.println(parseInt((wallet.getChild())));
+               bet=5000;
+        }             
+        });
+        tenK.addClickCommands(new Command<Button>(){ 
+           @Override 
+           public void execute(Button source){
+               bet=5000;
+        }             
+        }); 
+        ftK.addClickCommands(new Command<Button>(){ 
+           @Override 
+           public void execute(Button source){
+               bet=5000;
         }             
         }); 
         return betWinMain;
@@ -188,13 +198,25 @@ public class playState extends AbstractAppState {
         Button hit = actionWindow.addChild(new Button("HIT")); 
         Button stand = actionWindow.addChild(new Button("STAND")); 
         Button split = actionWindow.addChild(new Button("SPLIT")); 
-        Button dbl = actionWindow.addChild(new Button("DOUBLE"));
+        //Button dbl = actionWindow.addChild(new Button("DOUBLE"));
         hit.addClickCommands(new Command<Button>(){ 
             @Override 
             public void execute(Button source){ 
                 System.out.println("This world is yours."); 
             } 
-        }); 
+        });
+        stand.addClickCommands(new Command<Button>(){ 
+            @Override 
+            public void execute(Button source){ 
+                System.out.println("This world is yours."); 
+            } 
+        });
+        split.addClickCommands(new Command<Button>(){ 
+            @Override 
+            public void execute(Button source){ 
+                System.out.println("This world is yours."); 
+            } 
+        });
         return actWinMain;
     }
     
