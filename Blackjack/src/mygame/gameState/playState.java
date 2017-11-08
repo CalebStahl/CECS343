@@ -282,7 +282,7 @@ public class playState extends AbstractAppState {
         });
         return escWindow;
     }        
-    }
+    
 //        public Spatial createChip(){
 //          pokerChip1 = assetManager.loadModel("Models/PokerChip.j3o");
 //          Material pokerMat1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
