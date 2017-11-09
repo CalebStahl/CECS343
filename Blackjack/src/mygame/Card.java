@@ -1,5 +1,8 @@
 package mygame;
 
+import com.jme3.material.Material;
+import com.jme3.scene.Spatial;
+import com.jme3.asset.AssetManager;
 public class Card{
     private char face;
     private char suit;
@@ -17,6 +20,17 @@ public class Card{
         face = f;
         suit = s;
         value = calculateValue(face);
+    }
+    
+    public Spatial create(AssetManager assetManager){
+        String cardName = "Textures/Cards/"; 
+        cardName = cardName.concat("2_of_spades.png"); 
+        Spatial card = assetManager.loadModel("Models/basicCard.j3o"); 
+        Material cardMat = assetManager.loadMaterial("Materials/CardMat.j3m"); 
+        cardMat.setTexture("ColorMap2", assetManager.loadTexture(cardName)); 
+        card.setMaterial(cardMat); 
+        card.setLocalTranslation(-1.0f, 2.5f, 0.0f);
+        return card;
     }
     
     //get the value of face
