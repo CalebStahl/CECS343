@@ -32,6 +32,8 @@ import com.simsilica.lemur.Label;
 import com.simsilica.lemur.component.BorderLayout; 
 import com.simsilica.lemur.component.BoxLayout; 
 import com.simsilica.lemur.style.BaseStyles; 
+import java.util.List;
+import java.util.ArrayList;
  
  
 /** 
@@ -49,6 +51,7 @@ public class playState extends AbstractAppState {
     private Container actionGUI;
     private Container escGUI;
     private Container wallet;
+    private List<Spatial> savedGUI = new ArrayList();
      
     protected Spatial card; 
     protected Spatial pokerChip1; 
@@ -176,13 +179,13 @@ public class playState extends AbstractAppState {
         tenK.addClickCommands(new Command<Button>(){ 
            @Override 
            public void execute(Button source){
-               bet=5000;
+               bet=10000;
         }             
         }); 
         ftK.addClickCommands(new Command<Button>(){ 
            @Override 
            public void execute(Button source){
-               bet=5000;
+               bet=15000;
         }             
         }); 
         return betWinMain;
@@ -234,12 +237,14 @@ public class playState extends AbstractAppState {
         public void onAction(String name, boolean keyPressed, float tpf) {
             if (name.equals("ESCAPE") && !keyPressed) {
                 if(guiNode.getChildIndex(escGUI)==-1){
+                    savedGUI = guiNode.getChildren();
                     guiNode.detachAllChildren();
                     guiNode.attachChild(escGUI);
                 }
                 else{
                    guiNode.detachChild(escGUI);
-                   guiNode.attachChild(betGUI);
+                   for(int i=0; i<savedGUI.size(); i++){
+                        guiNode.attachChild((Spatial) savedGUI.remove(i));}
                 }
                 
             }
@@ -256,6 +261,11 @@ public class playState extends AbstractAppState {
         Button _SaveGame = escButtons.addChild(new Button("Save Game"));
         Button _Cancel = escButtons.addChild(new Button("Cancel"));
         escWindow.addChild(escButtons);
+        _MainMenu.addClickCommands(new Command<Button>(){
+            @Override public void execute(Button source){
+                
+            }
+        });
         _Cancel.addClickCommands(new Command<Button>(){ 
             @Override 
             public void execute(Button source){ 
@@ -265,8 +275,8 @@ public class playState extends AbstractAppState {
                 }
                  if(bet>0){
                     guiNode.detachChild(escGUI);
-                    guiNode.attachChild(actionGUI);
-            
+                    for(int i=0; i<savedGUI.size(); i++){
+                        guiNode.attachChild(savedGUI.remove(i));}
                 }
             } 
         });

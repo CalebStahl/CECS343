@@ -119,7 +119,9 @@ public class mainMenu extends AbstractAppState{
         playGame.addClickCommands(new Command<Button>(){
             @Override
             public void execute(Button source){
-                playAppState=true;
+                SimpleApplication app =(SimpleApplication) stateManager.getApplication();
+                stateManager.detach(stateManager.);
+                stateManager.attach(new playState(app));
             }
         });
         settings.addClickCommands(new Command<Button>(){
@@ -144,6 +146,10 @@ public class mainMenu extends AbstractAppState{
         super.cleanup();
     }
     
+    /**
+     * Continually called as long as this menu is in view
+     * @param tpf 
+     */
     @Override
     public void update(float tpf){
         pokerChip1.rotate(0,0,(2*tpf));
@@ -151,9 +157,9 @@ public class mainMenu extends AbstractAppState{
         pokerChip3.rotate(0,0,(2*tpf));
         pokerChip4.rotate(0,0,(2*tpf));
         if(playAppState==true||settingsAppState==true){
-            stateManager.detach(this);
+            
             if(playAppState==true)
-                stateManager.attach(new playState(this.app));
+                
             if(settingsAppState==true)
                 stateManager.attach(new settingsState(this.app));
         }
