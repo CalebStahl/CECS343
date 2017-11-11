@@ -34,6 +34,9 @@ import com.simsilica.lemur.component.BoxLayout;
 import com.simsilica.lemur.style.BaseStyles; 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Collections;
+import mygane.menuState.mainMenu;
+import mygame.Player;
  
  
 /** 
@@ -46,12 +49,13 @@ public class playState extends AbstractAppState {
     private final Node localRootNode = new Node("main game"); 
     private final AssetManager assetManager; 
     private final InputManager inputManager;
-    //private Container GUI_Main; //Main Container all playState GUI Spatials will attach to
+    private final AppStateManager stateManager;
     private Container betGUI;
     private Container actionGUI;
     private Container escGUI;
     private Container wallet;
     private List<Spatial> savedGUI = new ArrayList();
+    private final List<Integer> phases;
      
     protected Spatial card; 
     protected Spatial pokerChip1; 
@@ -61,14 +65,19 @@ public class playState extends AbstractAppState {
     
     private double bet = 0;
     private double multiplier = 0;
+    private Player user = new Player("Adam");
     //private double 
      
      
-    public playState(SimpleApplication app){ 
-            rootNode  =  app.getRootNode(); 
-            guiNode  =  app.getGuiNode(); 
-            assetManager = app.getAssetManager();
-            inputManager = app.getInputManager();
+    public playState(SimpleApplication app){
+        phases = new ArrayList();
+        phases.add(0);
+        phases.add(0);
+        stateManager = app.getStateManager();
+        rootNode  =  app.getRootNode(); 
+        guiNode  =  app.getGuiNode(); 
+        assetManager = app.getAssetManager();
+        inputManager = app.getInputManager();
     } 
      
     @Override 
@@ -126,17 +135,21 @@ public class playState extends AbstractAppState {
     @Override
     public void update(float tpf){
         //super.update();
-        if(bet==0){
-            if (guiNode.getChildIndex(betGUI)==-1){
-                System.out.println("Does this even work?");
+        if(phases.get(0)==0){
+            //if(GUI isn't attached)
+            if (guiNode.getChildIndex(betGUI)==-1){                
                 guiNode.attachChild(betGUI);
             }
+            
         }
-        if(bet>0){
+        else if(phases.get(0)==1 && phases.get(1)==0){
+            //If Action GUI isn't attached
             if(guiNode.getChildIndex(actionGUI)==-1){
                 guiNode.detachChild(betGUI);
                 guiNode.attachChild(actionGUI);
             }
+            
+            
         }
     }
     
@@ -263,7 +276,8 @@ public class playState extends AbstractAppState {
         escWindow.addChild(escButtons);
         _MainMenu.addClickCommands(new Command<Button>(){
             @Override public void execute(Button source){
-                
+                stateManager.detach(stateManager.getState(playState.class));
+                stateManager.attach(new mainMenu(app));
             }
         });
         _Cancel.addClickCommands(new Command<Button>(){ 
@@ -276,7 +290,9 @@ public class playState extends AbstractAppState {
                  if(bet>0){
                     guiNode.detachChild(escGUI);
                     for(int i=0; i<savedGUI.size(); i++){
-                        guiNode.attachChild(savedGUI.remove(i));}
+                        System.out.println("I assume that this is not working?");
+                        guiNode.attachChild(savedGUI.remove(i));
+                    }
                 }
             } 
         });

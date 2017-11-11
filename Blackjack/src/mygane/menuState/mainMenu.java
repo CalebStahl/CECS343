@@ -8,6 +8,7 @@ package mygane.menuState;
 import com.jme3.app.Application;
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.AbstractAppState;
+import com.jme3.app.state.AppState;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.asset.AssetManager;
 import com.jme3.light.DirectionalLight;
@@ -120,14 +121,16 @@ public class mainMenu extends AbstractAppState{
             @Override
             public void execute(Button source){
                 SimpleApplication app =(SimpleApplication) stateManager.getApplication();
-                stateManager.detach(stateManager.);
+                stateManager.detach(stateManager.getState(mainMenu.class));
                 stateManager.attach(new playState(app));
             }
         });
         settings.addClickCommands(new Command<Button>(){
             @Override
             public void execute(Button source){
-                settingsAppState=true;
+                SimpleApplication app =(SimpleApplication) stateManager.getApplication();
+                stateManager.detach(stateManager.getState(mainMenu.class));
+                stateManager.attach(new settingsState((SimpleApplication) stateManager.getApplication()));
             }
         });
         
