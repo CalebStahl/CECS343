@@ -1,8 +1,10 @@
 package mygame;
 
+import java.util.List;
+
 public class Deck{
     private final int DECK_SIZE = 52;
-    private Card[] myDeck = new Card[DECK_SIZE];
+    private List<Card> cardDeck = new Card[DECK_SIZE];
     private int cards;
     
     public void Deck(){
@@ -28,7 +30,7 @@ public class Deck{
     
     //Shuffle the deck
     public void shuffle(){
-        if (cards < 52)
+        if (cards < 51)
 		System.out.println("Deck not full. Can't shuffle unless the deck is full.\nReset the deck and try again.\n");
 	else {
 		for (int firstCard = 0; firstCard < DECK_SIZE; firstCard++) {
@@ -43,8 +45,8 @@ public class Deck{
     
     //Resets the deck to have all 52 cards in order
     public void resetDeck(){
-        char faces[] = { 'A','2','3','4','5','6','7','8','9','T','J','Q','K' };
-	char suits[] = { 'H','D','C','S' };
+        String faces[] = { "ace","2","3","4","5","6","7","8","9","10","jack","queen","king" };
+	String suits[] = { "hearts","diamonds","clubs","spades"};
 	int cardNumber = 0;
 	for (int index = 0; index < 4; index++) {
 		for (int c = 0; c < 13; c++) {

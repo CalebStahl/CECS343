@@ -35,6 +35,7 @@ import com.simsilica.lemur.style.BaseStyles;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
+import mygame.Hand;
 import mygane.menuState.mainMenu;
 import mygame.Player;
  
@@ -55,7 +56,7 @@ public class playState extends AbstractAppState {
     private Container escGUI;
     private Container wallet;
     private List<Spatial> savedGUI = new ArrayList();
-    private final List<Integer> phases;
+    private List<Boolean> phases;
      
     protected Spatial card; 
     protected Spatial pokerChip1; 
@@ -66,13 +67,12 @@ public class playState extends AbstractAppState {
     private double bet = 0;
     private double multiplier = 0;
     private Player user = new Player("Adam");
+    private Hand pHand = new Hand();
+    private Hand dHand = new Hand();
     //private double 
      
      
-    public playState(SimpleApplication app){
-        phases = new ArrayList();
-        phases.add(0);
-        phases.add(0);
+    public playState(SimpleApplication app){        
         stateManager = app.getStateManager();
         rootNode  =  app.getRootNode(); 
         guiNode  =  app.getGuiNode(); 
@@ -86,10 +86,11 @@ public class playState extends AbstractAppState {
         rootNode.attachChild(localRootNode);
         initKeys();
         
-         
-        //flyCam.setEnabled(paused); 
-        //setDisplayFps(false); 
-        //setDisplayStatView(false); 
+        phases = new ArrayList();
+        phases.add(false);
+        phases.add(false);
+
+        
          
         //Establishing Basic GUI Theme: CHANGE LATER?
         GuiGlobals.initialize((Application) app); 
@@ -135,14 +136,14 @@ public class playState extends AbstractAppState {
     @Override
     public void update(float tpf){
         //super.update();
-        if(phases.get(0)==0){
+        if(phases.get(0)==false){
             //if(GUI isn't attached)
             if (guiNode.getChildIndex(betGUI)==-1){                
                 guiNode.attachChild(betGUI);
             }
             
         }
-        else if(phases.get(0)==1 && phases.get(1)==0){
+        else if(phases.get(0)==true && phases.get(1)==false){
             //If Action GUI isn't attached
             if(guiNode.getChildIndex(actionGUI)==-1){
                 guiNode.detachChild(betGUI);
@@ -180,25 +181,37 @@ public class playState extends AbstractAppState {
         betWinMain.addChild(betWindow, BorderLayout.Position.Center); 
         betWinMain.addChild(new Label("Bet"), BorderLayout.Position.North); 
         //mainWindow.addChild(betWinMain, BorderLayout.Position.East); 
+        Button oneK = betWindow.addChild(new Button("$ 1,000")); 
+        Button twoK = betWindow.addChild(new Button("$ 2,000"));
         Button fiveK = betWindow.addChild(new Button("$ 5,000")); 
         Button tenK = betWindow.addChild(new Button("$ 10,000")); 
-        Button ftK = betWindow.addChild(new Button("$ 15,000")); 
+        fiveK.addClickCommands(new Command<Button>(){ 
+           @Override 
+           public void execute(Button source){
+               if(user.getWallet()>1000){
+                bet=5000;
+                phases.add(0, true);
+               }
+               else{
+                   System.out.println("");
+               }
+        }});
+        twoK.addClickCommands(new Command<Button>(){ 
+           @Override 
+           public void execute(Button source){
+               bet=10000;
+        }             
+        });
         fiveK.addClickCommands(new Command<Button>(){ 
            @Override 
            public void execute(Button source){
                bet=5000;
         }             
-        });
+        }); 
         tenK.addClickCommands(new Command<Button>(){ 
            @Override 
            public void execute(Button source){
                bet=10000;
-        }             
-        }); 
-        ftK.addClickCommands(new Command<Button>(){ 
-           @Override 
-           public void execute(Button source){
-               bet=15000;
         }             
         }); 
         return betWinMain;

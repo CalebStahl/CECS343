@@ -7,14 +7,14 @@ public class Player{
     private int loss;
     private double lrgRtn;
     private Hand currHand;
-    
-    public void Player(){
+  
+    public Player(){
         pName = " ";
         wallet = 0;
         win = 0;
         loss = 0;
     }
-    public void Player(String name){
+    public Player(String name){
         pName = name;
         wallet = 10000;
         win = 0;

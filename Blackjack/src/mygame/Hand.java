@@ -3,6 +3,7 @@ package mygame;
 import com.jme3.scene.Spatial;
 import java.util.ArrayList;
 import java.util.List;
+import mygame.Deck;
 
 public class Hand{
     private Card card1;
@@ -11,7 +12,6 @@ public class Hand{
     private Card[] myDeck = new Card[DECK_SIZE];
     private int cards;
     Spatial cardImage;
-    Card[] deck = myDeck;
     
     
     //Constructor
@@ -20,7 +20,7 @@ public class Hand{
     }
     
     
-    List<Card> RealHand = new ArrayList<Card>(); //change name
+    List<Card> cardsInHand = new ArrayList<Card>(); //change name
     
     
     //Place card
@@ -31,7 +31,7 @@ public class Hand{
     
     //Adds a card from the deck to the hand and places it
     public void DrawCard(){       
-        RealHand.add(deck[cards]);
+        cardsInHand.add(deck[cards]);
         PlaceCard(card1);
         //getTotal();
         
@@ -40,7 +40,7 @@ public class Hand{
     //Calculate total points in hand
     public int getTotal(){
         int total = 0, aceCount = 0;
-        for(Card card : RealHand){
+        for(Card card : cardsInHand){
             if(card.getFace() == 'A')
                 aceCount += 1;
             total = total + card.getValue();
@@ -53,5 +53,14 @@ public class Hand{
             total = total + 10;
         
         return total;    
+    }
+    
+    public boolean isSplittable(){
+        for(int i=0; i<cardsInHand.size(); i++){
+           for(int j=1; j<cardsInHand.size();j++){
+               if(cardsInHnad.size())
+            }
+        }
+        return false;
     }
 }
