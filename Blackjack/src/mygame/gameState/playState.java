@@ -87,8 +87,8 @@ public class playState extends AbstractAppState {
         initKeys();
         
         phases = new ArrayList();
-        phases.add(false);
-        phases.add(false);
+        initGame();
+        
 
         
          
@@ -136,21 +136,51 @@ public class playState extends AbstractAppState {
     @Override
     public void update(float tpf){
         //super.update();
+        //Betting Phase
         if(phases.get(0)==false){
             //if(GUI isn't attached)
             if (guiNode.getChildIndex(betGUI)==-1){                
                 guiNode.attachChild(betGUI);
             }
             
-        }
+        }//Dealing Phase
         else if(phases.get(0)==true && phases.get(1)==false){
             //If Action GUI isn't attached
             if(guiNode.getChildIndex(actionGUI)==-1){
                 guiNode.detachChild(betGUI);
                 guiNode.attachChild(actionGUI);
             }
-            
-            
+            pHand.DrawCard();
+            dHand.DrawCard();
+            pHand.DrawCard();
+            dHand.DrawCard();
+            //
+            if(dHand.isSplittable()){
+                //create splittable button
+                //add split phase
+            }
+           
+            phases.add(1, true);
+            //
+        }//Action Phase
+        else if(phases.get(1)==true && phases.get(2)==false){
+            if(isHit==true){
+                pHand.DrawCard();
+                isHit=false;
+            }
+            else if(isStay==true){
+                phases.add(2, true);
+                isStay=false;
+                
+            }
+            if(pHand.isSplittable()){
+                //attach split button
+                //
+            }
+        }//Dealer Phase
+        else if(phases.get(3)==true && phases.get(4)==true){
+            while(dHand.getTotal()>17)
+                dHand.DrawCard();
         }
     }
     
@@ -312,6 +342,11 @@ public class playState extends AbstractAppState {
         return escWindow;
     }        
     
+    void initGame(){
+        for( int i =0; i<5; i++)
+            phases.add(false);
+        
+    }
 //        public Spatial createChip(){
 //          pokerChip1 = assetManager.loadModel("Models/PokerChip.j3o");
 //          Material pokerMat1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");

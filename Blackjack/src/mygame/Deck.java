@@ -1,25 +1,26 @@
 package mygame;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-public class Deck{
+public final class Deck{
     private final int DECK_SIZE = 52;
-    private List<Card> cardDeck = new Card[DECK_SIZE];
+    private List<Card> cardDeck = new ArrayList<>();
     private int cards;
     
-    public void Deck(){
-        resetDeck();
+    public Deck(){
+        initDeck();
     }
     
     //returns the next card from the deck
     public Card dealCard(){
-        if (cards == 0){
+        if (cardDeck.isEmpty()){
 		System.out.println("No cards left in the deck to print");
                 return null;
         }
-	else {
-		//cards--;
-		return myDeck[--cards];
+        else{
+		return cardDeck.remove(cardDeck.size()-1);
         }
     }
     
@@ -30,31 +31,30 @@ public class Deck{
     
     //Shuffle the deck
     public void shuffle(){
-        if (cards < 51)
-		System.out.println("Deck not full. Can't shuffle unless the deck is full.\nReset the deck and try again.\n");
-	else {
-		for (int firstCard = 0; firstCard < DECK_SIZE; firstCard++) {
-			int secondCard = getRandomInt(0, 51);
-			Card temp = myDeck[firstCard];
-			myDeck[firstCard] = myDeck[secondCard];
-			myDeck[secondCard] = temp;
-		}
-		System.out.println("The deck has been shuffled.\n");
-	}
+//        if (cards < 51)
+//		System.out.println("Deck not full. Can't shuffle unless the deck is full.\nReset the deck and try again.\n");
+//	else {
+//		for (int firstCard = 0; firstCard < DECK_SIZE; firstCard++) {
+//			int secondCard = getRandomInt(0, 51);
+//			Card temp = myDeck[firstCard];
+//			myDeck[firstCard] = myDeck[secondCard];
+//			myDeck[secondCard] = temp;
+//		}
+//		System.out.println("The deck has been shuffled.\n");
+//	}
+        Collections.shuffle(cardDeck);
     }
     
     //Resets the deck to have all 52 cards in order
-    public void resetDeck(){
+    public void initDeck(){
         String faces[] = { "ace","2","3","4","5","6","7","8","9","10","jack","queen","king" };
 	String suits[] = { "hearts","diamonds","clubs","spades"};
-	int cardNumber = 0;
 	for (int index = 0; index < 4; index++) {
 		for (int c = 0; c < 13; c++) {
-			myDeck[cardNumber] = new Card(faces[c], suits[index]);
-			cardNumber++;
+			cardDeck.add(new Card(faces[c], suits[index]));
 		}
-	}
-	cards = 52;
+        }
+        shuffle();
     }
     
     public static int getRandomInt(int min, int max){

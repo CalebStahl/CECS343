@@ -4,27 +4,27 @@ import com.jme3.material.Material;
 import com.jme3.scene.Spatial;
 import com.jme3.asset.AssetManager;
 public class Card{
-    private char face;
-    private char suit;
+    private String face;
+    private String suit;
     private int value;
     
     //default constructor
     public Card(){
-        face = '2';
-        suit = 'S';
+        face = "2";
+        suit = "S";
         value = 2;
     }
     
     //overridden constructor
-    public Card(char f, char s){
+    public Card(String f, String s){
         face = f;
         suit = s;
-        value = calculateValue(face);
+        value = calcVal(face);
     }
     
     public Spatial create(AssetManager assetManager){
         String cardName = "Textures/Cards/"; 
-        cardName = cardName.concat("2_of_spades.png"); 
+        cardName = cardName.concat(face+"_of_"+suit+".png"); 
         Spatial card = assetManager.loadModel("Models/basicCard.j3o"); 
         Material cardMat = assetManager.loadMaterial("Materials/CardMat.j3m"); 
         cardMat.setTexture("ColorMap2", assetManager.loadTexture(cardName)); 
@@ -34,12 +34,12 @@ public class Card{
     }
     
     //get the value of face
-    public char getFace(){
+    public String getFace(){
         return face;
     }
     
     //get the value of suit
-    public char getSuit(){
+    public String getSuit(){
         return suit;
     }
     
@@ -49,13 +49,13 @@ public class Card{
     }
     
     //set the face of the card and update the value
-    public void setFace(char f){
+    public void setFace(String f){
         face = f;
-        value = calculateValue(f);
+        value = calcVal(f);
     }
     
     //set the card's suit
-    public void setSuit(char s){
+    public void setSuit(String s){
         suit = s;
     }
     
@@ -66,46 +66,46 @@ public class Card{
     
     //calculate the value of the card based on the face
     //T = 10, J = Jack, Q = Queen, K = King, A = High Ace, a = Low Ace
-    private int calculateValue(char face){
+    private int calcVal(String face){
         int val = 0;
         switch (face){
-            case '2':
+            case "2":
                  val = 2;
                  break;
-            case '3':
+            case "3":
                  val = 3;
                  break;
-            case '4':
+            case "4":
                  val = 4;
                  break;
-            case '5':
+            case "5":
                  val = 5;
                  break;
-            case '6':
+            case "6":
                  val = 6;
                  break;
-            case '7':
+            case "7":
                  val = 7;
                  break;
-            case '8':
+            case "8":
                  val = 8;
                  break;
-            case '9':
+            case "9":
                  val = 9;
                  break;
-            case 'T':
+            case "10":
                  val = 10;
                  break;
-            case 'J':
+            case "jack":
                  val = 10;
                  break;
-            case 'Q':
+            case "queen":
                  val = 10;
                  break;
-            case 'K':
+            case "king":
                  val = 10;
                  break;
-            case 'A':
+            case "ace": //Does this break hand calculation?
                  val = 11;
                  break;
             default:
