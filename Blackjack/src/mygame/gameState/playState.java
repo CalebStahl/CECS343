@@ -5,6 +5,7 @@
  */ 
 package mygame.gameState; 
  
+import com.google.common.base.Joiner;
 import com.jme3.app.Application; 
 import com.jme3.app.state.AbstractAppState; 
 import com.jme3.app.SimpleApplication; 
@@ -35,6 +36,7 @@ import com.simsilica.lemur.style.BaseStyles;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
+import mygame.Deck;
 import mygame.Hand;
 import mygane.menuState.mainMenu;
 import mygame.Player;
@@ -57,7 +59,16 @@ public class playState extends AbstractAppState {
     private Container wallet;
     private List<Spatial> savedGUI = new ArrayList();
     private List<Boolean> phases;
-     
+    
+    private Player user;
+    private Hand pHand;
+    private Hand dHand;
+    private Deck deck;
+    
+    private boolean isHit;
+    private boolean isSplit;
+    private boolean isStay;
+    
     protected Spatial card; 
     protected Spatial pokerChip1; 
     protected Spatial pokerChip2; 
@@ -66,13 +77,12 @@ public class playState extends AbstractAppState {
     
     private double bet = 0;
     private double multiplier = 0;
-    private Player user = new Player("Adam");
-    private Hand pHand = new Hand();
-    private Hand dHand = new Hand();
+    
     //private double 
      
      
     public playState(SimpleApplication app){        
+        
         stateManager = app.getStateManager();
         rootNode  =  app.getRootNode(); 
         guiNode  =  app.getGuiNode(); 
@@ -86,7 +96,6 @@ public class playState extends AbstractAppState {
         rootNode.attachChild(localRootNode);
         initKeys();
         
-        phases = new ArrayList();
         initGame();
         
 
@@ -108,7 +117,7 @@ public class playState extends AbstractAppState {
         //Wallet GUI Spatial 
         wallet  =  new Container (new BorderLayout()); 
         wallet.addChild(new Label("Wallet"), BorderLayout.Position.North); 
-        Label walNum = wallet.addChild(new Label("$ 10,000"), BorderLayout.Position.South); 
+        Label walNum = wallet.addChild(new label("$ "+ labelWallet()), BorderLayout.Position.South);
         wallet.setLocalTranslation(0, 340, 0); 
         guiNode.attachChild(wallet); 
                          
@@ -126,6 +135,18 @@ public class playState extends AbstractAppState {
         pivot.attachChild(card); 
         pivot.scale(0.60f); 
     } 
+    
+    private String labelWallet(){
+        String walletLabel="$   "+Double.toString(user.getWallet());
+        int intFound = walletLabel.indexOf(" ");
+        for(int i= (intFound+2); i<walletLabel.length(); i+=3){
+            insert
+            
+        }
+        // Use google stringbuilder
+        Joiner joiner = =Joiner
+        return walletLabel;
+    }
      
     @Override 
     public void cleanup(){ 
@@ -135,6 +156,7 @@ public class playState extends AbstractAppState {
     
     @Override
     public void update(float tpf){
+        boolean isHit = false, isSplit = false; isStay = false;
         //super.update();
         //Betting Phase
         if(phases.get(0)==false){
@@ -261,7 +283,7 @@ public class playState extends AbstractAppState {
         hit.addClickCommands(new Command<Button>(){ 
             @Override 
             public void execute(Button source){ 
-                System.out.println("This world is yours."); 
+                isHit=true; 
             } 
         });
         stand.addClickCommands(new Command<Button>(){ 
@@ -319,6 +341,7 @@ public class playState extends AbstractAppState {
         escWindow.addChild(escButtons);
         _MainMenu.addClickCommands(new Command<Button>(){
             @Override public void execute(Button source){
+                SimpleApplication app =(SimpleApplication) stateManager.getApplication();
                 stateManager.detach(stateManager.getState(playState.class));
                 stateManager.attach(new mainMenu(app));
             }
@@ -332,7 +355,7 @@ public class playState extends AbstractAppState {
                 }
                  if(bet>0){
                     guiNode.detachChild(escGUI);
-                    for(int i=0; i<savedGUI.size(); i++){
+                    for(int i=0; i<savedGUI.size(); i++){   //Need to Fix this too...
                         System.out.println("I assume that this is not working?");
                         guiNode.attachChild(savedGUI.remove(i));
                     }
@@ -343,6 +366,11 @@ public class playState extends AbstractAppState {
     }        
     
     void initGame(){
+        deck = new Deck();
+        user = new Player("Adam");
+        pHand = new Hand("player", deck);
+        dHand = new Hand("dealer", deck);
+        phases = new ArrayList();
         for( int i =0; i<5; i++)
             phases.add(false);
         
@@ -380,4 +408,5 @@ public class playState extends AbstractAppState {
 //          pokerChip4.rotate(-5.0f,0.0f,0.0f);
 //          pivot.attachChild(pokerChip4);
 //    }
+
 } 
