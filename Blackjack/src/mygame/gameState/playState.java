@@ -70,11 +70,7 @@ public class playState extends AbstractAppState {
     private Deck deck;
     
     
-    protected Spatial card; 
-    protected Spatial pokerChip1; 
-    protected Spatial pokerChip2; 
-    protected Spatial pokerChip3; 
-    protected Spatial pokerChip4;
+    protected Label walNum;     //Lists money in user's wallet
     
     private double bet = 0;
     private double multiplier = 0;
@@ -98,7 +94,7 @@ public class playState extends AbstractAppState {
         localRootNode.scale(0.6f);
         initKeys();
         initGame();
-     
+        user = new Player("Adam");
         //Establishing Basic GUI Theme: CHANGE LATER Green?
         GuiGlobals.initialize((Application) app); 
         BaseStyles.loadGlassStyle(); 
@@ -113,8 +109,7 @@ public class playState extends AbstractAppState {
         //Wallet GUI Spatial 
         wallet  =  new Container (new BorderLayout()); 
         wallet.addChild(new Label("Wallet"), BorderLayout.Position.North);
-        Label walNum = new Label(labelWallet());
-        wallet.addChild(walNum, BorderLayout.Position.South);
+        walNum = wallet.addChild(new Label(labelWallet()), BorderLayout.Position.South);
         wallet.setLocalTranslation(0, 250, 0); 
         guiNode.attachChild(wallet); 
                          
@@ -152,8 +147,6 @@ public class playState extends AbstractAppState {
             if (guiNode.getChildIndex(betGUI)==-1){                
                 guiNode.attachChild(betGUI);
             }
-            wallet.detachChildNamed("walNum");
-            wallet.addChild(new Label(labelWallet()));
         }//Dealing Phase
         else if(phases.get(0)==true && phases.get(1)==false){
             //If Action GUI isn't attached
@@ -245,52 +238,85 @@ public class playState extends AbstractAppState {
         oneK.addClickCommands(new Command<Button>(){ 
            @Override 
            public void execute(Button source){
-               int butAmt = 1000;
-               if(user.getWallet()>butAmt){
-                bet=butAmt;
-                user.deductWallet(butAmt);
-                phases.add(0, true);
+                int butAmt = 1000;
+                if(user.getWallet()>=butAmt){
+                    bet=butAmt;
+                    user.deductWallet(butAmt);
+                    phases.add(0, true);
+                    System.out.println(user.getWallet());
+                    wallet.detachChild(walNum);
+                    walNum = wallet.addChild(new Label(labelWallet()));
                }
                else{
-                   System.out.println("");
+                   System.out.println("Not Enough Money.");
                }
         }});
         twoK.addClickCommands(new Command<Button>(){ 
            @Override 
            public void execute(Button source){
-               bet=10000;
+               int butAmt = 2000;
+                if(user.getWallet()>=butAmt){
+                    bet=butAmt;
+                    user.deductWallet(butAmt);
+                    phases.add(0, true);
+                    wallet.detachChild(walNum);
+                    walNum = wallet.addChild(new Label(labelWallet()));
+               }
+               else{
+                   System.out.println("Not Enough Money.");
+               }
         }             
         });
         fiveK.addClickCommands(new Command<Button>(){ 
            @Override 
            public void execute(Button source){
-               bet=5000;
+               int butAmt = 5000;
+                if(user.getWallet()>=butAmt){
+                    bet=butAmt;
+                    user.deductWallet(butAmt);
+                    phases.add(0, true);
+                    wallet.detachChild(walNum);
+                    walNum=wallet.addChild(new Label(labelWallet()));
+               }
+               else{
+                   System.out.println("Not Enough Money.");
+               }
         }             
         }); 
         tenK.addClickCommands(new Command<Button>(){ 
            @Override 
            public void execute(Button source){
-               bet=10000;
+               int butAmt = 10000;
+                if(user.getWallet()>=butAmt){
+                    bet=butAmt;
+                    user.deductWallet(butAmt);
+                    phases.add(0, true);
+                    wallet.detachChild(walNum);
+                    walNum=wallet.addChild(new Label(labelWallet()));
+               }
+               else{
+                   System.out.println("Not Enough Money.");
+               }
         }             
         }); 
         return betWinMain;
     }
     //GUI for the game over menu
     public Container getGOmenu(String gameStatus){
-        Container goWindow = new Container(new BorderLayout());
-        goWindow.setLocalTranslation(90,250,0);
-        goWindow.addChild(new Label(gameStatus + " Actions\n Play Again?"), BorderLayout.Position.North); 
+        goGUI = new Container(new BorderLayout());
+        goGUI.setLocalTranslation(90,250,0);
+        goGUI.addChild(new Label(gameStatus + " Actions\n Play Again?"), BorderLayout.Position.North); 
         //goWindow.addChild(goWindow, BorderLayout.Position.Center);  
-        Button yes = goWindow.addChild(new Button("Yes"), BorderLayout.Position.West); 
-        Button no = goWindow.addChild(new Button("No(Eventually Save too)"), BorderLayout.Position.Center); 
-        Button ExitGame = goWindow.addChild(new Button("Exit Game"), BorderLayout.Position.East);
+        Button yes = goGUI.addChild(new Button("Yes"), BorderLayout.Position.West); 
+        Button no = goGUI.addChild(new Button("No(Eventually Save too)"), BorderLayout.Position.Center); 
+        Button ExitGame = goGUI.addChild(new Button("Exit Game"), BorderLayout.Position.East);
         yes.addClickCommands(new Command<Button>(){ 
             @Override 
             public void execute(Button source){ 
                 //user.saveGame();
-                if(guiNode.getChildIndex(actionGUI)>-1)
+                if(guiNode.getChildIndex(actionGUI)!=-1)
                     guiNode.detachChild(actionGUI);
-                if(guiNode.getChildIndex(goGUI)>-1)
+                if(guiNode.getChildIndex(goGUI)!=-1)
                     guiNode.detachChild(goGUI);
                 initGame(); 
             } 
@@ -309,7 +335,7 @@ public class playState extends AbstractAppState {
                 isHit=true; 
             } 
         });
-        return goWindow;
+        return goGUI;
     }
     
     public Container getActionMenu(){
@@ -322,7 +348,6 @@ public class playState extends AbstractAppState {
         Button hit = actionWindow.addChild(new Button("HIT")); 
         Button stand = actionWindow.addChild(new Button("STAND")); 
         Button split = actionWindow.addChild(new Button("SPLIT")); 
-        //Button dbl = actionWindow.addChild(new Button("DOUBLE"));
         hit.addClickCommands(new Command<Button>(){ 
             @Override 
             public void execute(Button source){ 
@@ -365,6 +390,7 @@ public class playState extends AbstractAppState {
                 else{
                    guiNode.detachChild(escGUI);
                    for(int i=0; i<savedGUI.size(); i++){
+                        System.out.println("Why isn't this work right?");
                         guiNode.attachChild((Spatial) savedGUI.remove(i));}
                 }
                 
@@ -410,8 +436,7 @@ public class playState extends AbstractAppState {
     }        
     
     void initGame(){
-        deck = new Deck();
-        user = new Player("Adam");
+        deck = new Deck();        
         pHand = new Hand("player", deck);
         dHand = new Hand("dealer", deck);
         phases = new ArrayList();
