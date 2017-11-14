@@ -1,5 +1,6 @@
 package mygame;
 
+import com.jme3.asset.AssetManager;
 import com.jme3.scene.Spatial;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,14 +10,15 @@ import java.util.List;
 public class Hand{
     private String owner;
     private int cards;
-    Spatial cardImage;
     Deck deck;
+    List<Spatial> sparray;
     public enum cardsLoc{CARD1, CARD2, CARD3, CARD4}
     
     //Constructor
     public Hand(String participant, Deck deckInPlay){
         owner = participant;
         deck = deckInPlay;  //Might have to be moved to drawCard?
+        sparray = new ArrayList<>();
     }
     
     
@@ -24,24 +26,24 @@ public class Hand{
     
     
     //Place card
-    public void PlaceCard(cardsLoc CARD){
+    public void PlaceCard(cardsLoc CARD, Spatial cardImage){
         if("player".equals(owner)){
             if(null!=CARD)
                 switch (CARD) {
                 case CARD1:
-                    cardImage.setLocalTranslation(-1.5f, 2.5f, 0.0f);
+                     cardImage.setLocalTranslation(-2.5f, 0.5f, 0.0f);
                     break;
                 case CARD2:
-                    cardImage.setLocalTranslation(-1.5f, 2.5f, 0.0f);
+                    cardImage.setLocalTranslation(0.5f, 0.5f, 0.0f);
                     break;
                 case CARD3:
                     //Cards 1 and 2 need to start being moved over so update
                     //translations for them as well
-                    cardImage.setLocalTranslation(-1.5f, 2.5f, 0.0f);
+                    cardImage.setLocalTranslation(-1.5f, 0.5f, 0.0f);
                     break;
                 case CARD4:
                     //same as above
-                    cardImage.setLocalTranslation(-1.5f, 2.5f, 0.0f);
+                    cardImage.setLocalTranslation(-1.5f, 0.5f, 0.0f);
                     break;
                 default:
                     break;
@@ -51,10 +53,10 @@ public class Hand{
             if(null!=CARD)
                 switch (CARD) {
                 case CARD1:
-                    cardImage.setLocalTranslation(-1.5f, 2.5f, 0.0f);
+                    cardImage.setLocalTranslation(-2.5f, 3.5f, 0.0f);
                     break;
                 case CARD2:
-                    cardImage.setLocalTranslation(-1.5f, 2.5f, 0.0f);
+                    cardImage.setLocalTranslation(0.5f, 3.5f, 0.0f);
                     break;
                 case CARD3:
                     //Cards 1 and 2 need to start being moved over so update
@@ -73,32 +75,35 @@ public class Hand{
     
     
     //Adds a card from the deck to the hand and places it
-    public void DrawCard(){       
+    public Spatial DrawCard(AssetManager assetManager){       
         cardsInHand.add(deck.dealCard());
+        sparray.add(cardsInHand.get(cardsInHand.size()-1).create(assetManager));
         switch (cardsInHand.size()) {
             case 1:
-                PlaceCard(cardsLoc.CARD1);
+                PlaceCard(cardsLoc.CARD1, sparray.get((sparray.size()-1)));
                 break;
             case 2:
-                PlaceCard(cardsLoc.CARD2);
+                PlaceCard(cardsLoc.CARD2, sparray.get((sparray.size()-1)));
                 break;
             case 3:
-                PlaceCard(cardsLoc.CARD3);
+                PlaceCard(cardsLoc.CARD3, sparray.get((sparray.size()-1)));
                 break;
             case 4:
-                PlaceCard(cardsLoc.CARD4);
+                PlaceCard(cardsLoc.CARD4, sparray.get((sparray.size()-1)));
                 break;
             default:
                 break;
-            }       
+            }
+        return sparray.get((sparray.size()-1));
     }
     
     //Calculate total points in hand
     public int getTotal(){
         int total = 0, aceCount = 0;
         for(Card card : cardsInHand){
-            if(card.getFace() == "ace")
+            if("ace".equals(card.getFace())){
                 aceCount += 1;
+            }
             total = total + card.getValue();
         }
         

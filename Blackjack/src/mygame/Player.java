@@ -2,10 +2,10 @@ package mygame;
 
 public class Player{
     private String pName;
-    private double wallet;
+    private int wallet;
     private int win;
     private int loss;
-    private double lrgRtn;
+    private int lrgRtn;
     private Hand currHand;
   
     public Player(){
@@ -25,7 +25,11 @@ public class Player{
         return pName;
     }
     
-    public double getWallet(){
+    public void deductWallet(int d){
+        wallet-=d;
+    }
+    
+    public int getWallet(){
         return wallet;
     }
     
@@ -37,14 +41,14 @@ public class Player{
         return loss;
     }
     
-    public void setLrgRtn(double amtRtn){
+    public void setLrgRtn(int amtRtn){
         if(amtRtn>lrgRtn)
             lrgRtn=amtRtn;
         else
             System.out.println("Current value is larger");
     }
     
-    public double getLrgRtn(){
+    public int getLrgRtn(){
         return lrgRtn;
     }
     

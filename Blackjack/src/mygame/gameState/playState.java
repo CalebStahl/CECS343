@@ -94,20 +94,15 @@ public class playState extends AbstractAppState {
     public void initialize(AppStateManager stateManager, Application app){ 
         super.initialize(stateManager, app); 
         rootNode.attachChild(localRootNode);
+        localRootNode.scale(0.6f);
         initKeys();
-        
         initGame();
-        
-
-        
-         
-        //Establishing Basic GUI Theme: CHANGE LATER?
+     
+        //Establishing Basic GUI Theme: CHANGE LATER Green?
         GuiGlobals.initialize((Application) app); 
         BaseStyles.loadGlassStyle(); 
         GuiGlobals.getInstance().getStyles().setDefaultStyle("glass");
-        //GUI_Main= new Container(new BorderLayout());
-        //guiNode.attachChild(GUI_Main); 
-        //GUI_Main.setLocalTranslation(30, 100, 0); 
+         
         betGUI = getBetMenu(); 
         escGUI = getEscMenu();
         actionGUI = getActionMenu();
@@ -116,55 +111,46 @@ public class playState extends AbstractAppState {
          
         //Wallet GUI Spatial 
         wallet  =  new Container (new BorderLayout()); 
-        wallet.addChild(new Label("Wallet"), BorderLayout.Position.North); 
-        Label walNum = wallet.addChild(new label("$ "+ labelWallet()), BorderLayout.Position.South);
-        wallet.setLocalTranslation(0, 340, 0); 
+        wallet.addChild(new Label("Wallet"), BorderLayout.Position.North);
+        Label walNum = new Label(labelWallet());
+        wallet.addChild(walNum, BorderLayout.Position.South);
+        wallet.setLocalTranslation(0, 250, 0); 
         guiNode.attachChild(wallet); 
                          
-        Node pivot = new Node("pivot"); 
-        rootNode.attachChild(pivot); 
-        
-        //Card Model for demonstration
-        String cardName = "Textures/Cards/"; 
-        cardName = cardName.concat("2_of_spades.png"); 
-        card = assetManager.loadModel("Models/basicCard.j3o"); 
-        Material cardMat = assetManager.loadMaterial("Materials/CardMat.j3m"); 
-        cardMat.setTexture("ColorMap2", assetManager.loadTexture(cardName)); 
-        card.setMaterial(cardMat); 
-        card.setLocalTranslation(-1.0f, 2.5f, 0.0f); 
-        pivot.attachChild(card); 
-        pivot.scale(0.60f); 
+         
     } 
     
     private String labelWallet(){
-        String walletLabel="$   "+Double.toString(user.getWallet());
-        int intFound = walletLabel.indexOf(" ");
-        for(int i= (intFound+2); i<walletLabel.length(); i+=3){
-            insert
-            
+        StringBuilder walletLabel=new StringBuilder("$   "+Integer.toString(user.getWallet()));
+        int intFound = walletLabel.lastIndexOf(" ");
+        for(int i=(walletLabel.length()-3); i>intFound; i-=3){
+            walletLabel.insert(i, ',');
         }
-        // Use google stringbuilder
-        Joiner joiner = =Joiner
-        return walletLabel;
+        // Use google stringbuilder?
+        //Joiner joiner = =Joiner
+        return walletLabel.toString();
     }
-     
+    
+    /**
+     * Called when playState is deatched from stateManager.
+     */
     @Override 
     public void cleanup(){ 
         rootNode.detachChild(localRootNode); 
         super.cleanup(); 
     } 
     
+    //Game Logic
     @Override
     public void update(float tpf){
-        boolean isHit = false, isSplit = false; isStay = false;
-        //super.update();
+        super.update(tpf);
         //Betting Phase
         if(phases.get(0)==false){
             //if(GUI isn't attached)
             if (guiNode.getChildIndex(betGUI)==-1){                
                 guiNode.attachChild(betGUI);
             }
-            
+            //wallet.getChild
         }//Dealing Phase
         else if(phases.get(0)==true && phases.get(1)==false){
             //If Action GUI isn't attached
@@ -172,10 +158,10 @@ public class playState extends AbstractAppState {
                 guiNode.detachChild(betGUI);
                 guiNode.attachChild(actionGUI);
             }
-            pHand.DrawCard();
-            dHand.DrawCard();
-            pHand.DrawCard();
-            dHand.DrawCard();
+            localRootNode.attachChild(pHand.DrawCard(assetManager));
+            localRootNode.attachChild(dHand.DrawCard(assetManager));
+            localRootNode.attachChild(pHand.DrawCard(assetManager));
+            localRootNode.attachChild(dHand.DrawCard(assetManager));
             //
             if(dHand.isSplittable()){
                 //create splittable button
@@ -183,11 +169,12 @@ public class playState extends AbstractAppState {
             }
            
             phases.add(1, true);
-            //
+            
         }//Action Phase
         else if(phases.get(1)==true && phases.get(2)==false){
             if(isHit==true){
-                pHand.DrawCard();
+                localRootNode.attachChild(pHand.DrawCard(assetManager));
+                //pHand.hasCondition
                 isHit=false;
             }
             else if(isStay==true){
@@ -200,12 +187,21 @@ public class playState extends AbstractAppState {
                 //
             }
         }//Dealer Phase
-        else if(phases.get(3)==true && phases.get(4)==true){
+        else if(phases.get(2)==true && phases.get(3)==false){
             while(dHand.getTotal()>17)
-                dHand.DrawCard();
+                localRootNode.attachChild(dHand.DrawCard(assetManager));
+            phases.add(3, true);
         }
+        else if(phases.get(3)==true && phases.get(4)==false){
+            if(pHand.getTotal()>dHand.getTotal())
+                System.out.println("User Won!");
+            else
+                System.out.println("House Won!");
+        }
+        
     }
     
+    //Creates the tables the all the cards are on
     public void createTable(){ 
         Box box = new Box(15, .2f, 15); 
         Geometry tableTop =  new Geometry("table", box); 
@@ -225,7 +221,7 @@ public class playState extends AbstractAppState {
         rootNode.addLight(sun); 
     } 
     
-    //
+    //GUI for the bet menu phase
     public Container getBetMenu(){ 
         Container betWinMain =  new Container(new BorderLayout());
         betWinMain.setLocalTranslation(90,50,0);
@@ -237,11 +233,13 @@ public class playState extends AbstractAppState {
         Button twoK = betWindow.addChild(new Button("$ 2,000"));
         Button fiveK = betWindow.addChild(new Button("$ 5,000")); 
         Button tenK = betWindow.addChild(new Button("$ 10,000")); 
-        fiveK.addClickCommands(new Command<Button>(){ 
+        oneK.addClickCommands(new Command<Button>(){ 
            @Override 
            public void execute(Button source){
-               if(user.getWallet()>1000){
-                bet=5000;
+               int butAmt = 1000;
+               if(user.getWallet()>butAmt){
+                bet=butAmt;
+                user.deductWallet(butAmt);
                 phases.add(0, true);
                }
                else{
@@ -289,13 +287,13 @@ public class playState extends AbstractAppState {
         stand.addClickCommands(new Command<Button>(){ 
             @Override 
             public void execute(Button source){ 
-                System.out.println("This world is yours."); 
+                isStay=true;
             } 
         });
         split.addClickCommands(new Command<Button>(){ 
             @Override 
             public void execute(Button source){ 
-                System.out.println("This world is yours."); 
+                isSplit=true; 
             } 
         });
         return actWinMain;
@@ -342,6 +340,7 @@ public class playState extends AbstractAppState {
         _MainMenu.addClickCommands(new Command<Button>(){
             @Override public void execute(Button source){
                 SimpleApplication app =(SimpleApplication) stateManager.getApplication();
+                guiNode.detachAllChildren();
                 stateManager.detach(stateManager.getState(playState.class));
                 stateManager.attach(new mainMenu(app));
             }
@@ -373,7 +372,8 @@ public class playState extends AbstractAppState {
         phases = new ArrayList();
         for( int i =0; i<5; i++)
             phases.add(false);
-        
+        isHit = false; isSplit = false; isStay = false;//Supposed to set false every update?
+
     }
 //        public Spatial createChip(){
 //          pokerChip1 = assetManager.loadModel("Models/PokerChip.j3o");
