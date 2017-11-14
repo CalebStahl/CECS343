@@ -1,5 +1,8 @@
 package mygame;
-
+/**
+ * @Author - Adam
+ * 
+ */
 public class Player{
     private String pName;
     private int wallet;

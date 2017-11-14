@@ -1,5 +1,9 @@
 package mygame;
-
+/**
+ * @Author - Jason
+ * @Edited - Adam
+ * 
+ */
 import com.jme3.material.Material;
 import com.jme3.scene.Spatial;
 import com.jme3.asset.AssetManager;

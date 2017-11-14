@@ -55,19 +55,20 @@ public class playState extends AbstractAppState {
     private final AppStateManager stateManager;
     private Container betGUI;
     private Container actionGUI;
+    private Container goGUI;
     private Container escGUI;
     private Container wallet;
     private List<Spatial> savedGUI = new ArrayList();
     private List<Boolean> phases;
     
+    private boolean isHit;
+    private boolean isSplit;
+    private boolean isStay;
     private Player user;
     private Hand pHand;
     private Hand dHand;
     private Deck deck;
     
-    private boolean isHit;
-    private boolean isSplit;
-    private boolean isStay;
     
     protected Spatial card; 
     protected Spatial pokerChip1; 
@@ -136,7 +137,8 @@ public class playState extends AbstractAppState {
      */
     @Override 
     public void cleanup(){ 
-        rootNode.detachChild(localRootNode); 
+        rootNode.detachAllChildren(); 
+        guiNode.detachAllChildren();
         super.cleanup(); 
     } 
     
@@ -150,7 +152,8 @@ public class playState extends AbstractAppState {
             if (guiNode.getChildIndex(betGUI)==-1){                
                 guiNode.attachChild(betGUI);
             }
-            //wallet.getChild
+            wallet.detachChildNamed("walNum");
+            wallet.addChild(new Label(labelWallet()));
         }//Dealing Phase
         else if(phases.get(0)==true && phases.get(1)==false){
             //If Action GUI isn't attached
@@ -174,6 +177,7 @@ public class playState extends AbstractAppState {
         else if(phases.get(1)==true && phases.get(2)==false){
             if(isHit==true){
                 localRootNode.attachChild(pHand.DrawCard(assetManager));
+                System.out.println("I draw");
                 //pHand.hasCondition
                 isHit=false;
             }
@@ -188,15 +192,20 @@ public class playState extends AbstractAppState {
             }
         }//Dealer Phase
         else if(phases.get(2)==true && phases.get(3)==false){
-            while(dHand.getTotal()>17)
+            while(dHand.getTotal()<17)
                 localRootNode.attachChild(dHand.DrawCard(assetManager));
             phases.add(3, true);
         }
         else if(phases.get(3)==true && phases.get(4)==false){
-            if(pHand.getTotal()>dHand.getTotal())
-                System.out.println("User Won!");
-            else
-                System.out.println("House Won!");
+            if(pHand.getTotal()>dHand.getTotal()){
+                if(guiNode.getChildIndex(goGUI)==-1)
+                    guiNode.attachChild(getGOmenu("Player Won!"));
+            }
+            else{
+                if(guiNode.getChildIndex(goGUI)==-1)
+                    guiNode.attachChild(getGOmenu("House Won!"));
+            }
+                    
         }
         
     }
@@ -265,7 +274,43 @@ public class playState extends AbstractAppState {
         }             
         }); 
         return betWinMain;
-    } 
+    }
+    //GUI for the game over menu
+    public Container getGOmenu(String gameStatus){
+        Container goWindow = new Container(new BorderLayout());
+        goWindow.setLocalTranslation(90,250,0);
+        goWindow.addChild(new Label(gameStatus + " Actions\n Play Again?"), BorderLayout.Position.North); 
+        //goWindow.addChild(goWindow, BorderLayout.Position.Center);  
+        Button yes = goWindow.addChild(new Button("Yes"), BorderLayout.Position.West); 
+        Button no = goWindow.addChild(new Button("No(Eventually Save too)"), BorderLayout.Position.Center); 
+        Button ExitGame = goWindow.addChild(new Button("Exit Game"), BorderLayout.Position.East);
+        yes.addClickCommands(new Command<Button>(){ 
+            @Override 
+            public void execute(Button source){ 
+                //user.saveGame();
+                if(guiNode.getChildIndex(actionGUI)>-1)
+                    guiNode.detachChild(actionGUI);
+                if(guiNode.getChildIndex(goGUI)>-1)
+                    guiNode.detachChild(goGUI);
+                initGame(); 
+            } 
+        });
+        no.addClickCommands(new Command<Button>(){ 
+            @Override 
+            public void execute(Button source){
+                SimpleApplication app =(SimpleApplication) stateManager.getApplication();
+                stateManager.attach(new mainMenu(app));
+                stateManager.detach(stateManager.getState(playState.class));
+            } 
+        });
+        ExitGame.addClickCommands(new Command<Button>(){ 
+            @Override 
+            public void execute(Button source){ 
+                isHit=true; 
+            } 
+        });
+        return goWindow;
+    }
     
     public Container getActionMenu(){
         Container actWinMain = new Container(new BorderLayout());

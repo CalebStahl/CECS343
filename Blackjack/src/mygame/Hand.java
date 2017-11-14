@@ -1,5 +1,8 @@
 package mygame;
-
+/**
+ * @Author - Caleb
+ * @Edited - Adam
+ */
 import com.jme3.asset.AssetManager;
 import com.jme3.scene.Spatial;
 import java.util.ArrayList;
