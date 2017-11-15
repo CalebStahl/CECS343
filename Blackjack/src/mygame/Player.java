@@ -32,6 +32,10 @@ public class Player{
         wallet-=d;
     }
     
+    public void addWallet(int d){
+        wallet+=d;
+    }
+    
     public int getWallet(){
         return wallet;
     }

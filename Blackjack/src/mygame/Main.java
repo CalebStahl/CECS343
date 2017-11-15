@@ -19,6 +19,6 @@ public class Main extends SimpleApplication {
         flyCam.setEnabled(paused);
         setDisplayFps(false);
         setDisplayStatView(false);
-        stateManager.attach(new playState(this));
+        stateManager.attach(new mainMenu(this));
     }
 }

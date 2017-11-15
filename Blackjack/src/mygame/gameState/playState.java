@@ -55,6 +55,7 @@ public class playState extends AbstractAppState {
     private final AppStateManager stateManager;
     private Container betGUI;
     private Container actionGUI;
+    private Container cntGUI;
     private Container goGUI;
     private Container escGUI;
     private Container wallet;
@@ -72,7 +73,7 @@ public class playState extends AbstractAppState {
     
     protected Label walNum;     //Lists money in user's wallet
     
-    private double bet = 0;
+    private int bet = 0;
     private double multiplier = 0;
     
     //private double 
@@ -190,7 +191,11 @@ public class playState extends AbstractAppState {
             phases.add(3, true);
         }
         else if(phases.get(3)==true && phases.get(4)==false){
-            if(pHand.getTotal()>dHand.getTotal()){
+            if(pHand.getTotal()>dHand.getTotal() && pHand.getTotal()<=21){
+                if(bet>0){
+                    user.addWallet((bet/2)*3);
+                    bet=0;
+                }
                 if(guiNode.getChildIndex(goGUI)==-1)
                     guiNode.attachChild(getGOmenu("Player Won!"));
             }
@@ -238,15 +243,15 @@ public class playState extends AbstractAppState {
         oneK.addClickCommands(new Command<Button>(){ 
            @Override 
            public void execute(Button source){
-                int butAmt = 1000;
-                if(user.getWallet()>=butAmt){
-                    bet=butAmt;
-                    user.deductWallet(butAmt);
+                int betAmt = 1000;                 
+                if(user.getWallet()>=betAmt){
+                    bet=betAmt;
+                    user.deductWallet(betAmt);
                     phases.add(0, true);
                     System.out.println(user.getWallet());
                     wallet.detachChild(walNum);
                     walNum = wallet.addChild(new Label(labelWallet()));
-               }
+                }
                else{
                    System.out.println("Not Enough Money.");
                }
@@ -254,10 +259,10 @@ public class playState extends AbstractAppState {
         twoK.addClickCommands(new Command<Button>(){ 
            @Override 
            public void execute(Button source){
-               int butAmt = 2000;
-                if(user.getWallet()>=butAmt){
-                    bet=butAmt;
-                    user.deductWallet(butAmt);
+               int betAmt = 2000;
+                if(user.getWallet()>=betAmt){
+                    bet=betAmt;
+                    user.deductWallet(betAmt);
                     phases.add(0, true);
                     wallet.detachChild(walNum);
                     walNum = wallet.addChild(new Label(labelWallet()));
@@ -270,10 +275,10 @@ public class playState extends AbstractAppState {
         fiveK.addClickCommands(new Command<Button>(){ 
            @Override 
            public void execute(Button source){
-               int butAmt = 5000;
-                if(user.getWallet()>=butAmt){
-                    bet=butAmt;
-                    user.deductWallet(butAmt);
+               int betAmt = 5000;
+                if(user.getWallet()>=betAmt){
+                    bet=betAmt;
+                    user.deductWallet(betAmt);
                     phases.add(0, true);
                     wallet.detachChild(walNum);
                     walNum=wallet.addChild(new Label(labelWallet()));
@@ -286,10 +291,10 @@ public class playState extends AbstractAppState {
         tenK.addClickCommands(new Command<Button>(){ 
            @Override 
            public void execute(Button source){
-               int butAmt = 10000;
-                if(user.getWallet()>=butAmt){
-                    bet=butAmt;
-                    user.deductWallet(butAmt);
+               int betAmt = 10000;
+                if(user.getWallet()>=betAmt){
+                    bet=betAmt;
+                    user.deductWallet(betAmt);
                     phases.add(0, true);
                     wallet.detachChild(walNum);
                     walNum=wallet.addChild(new Label(labelWallet()));
@@ -301,6 +306,7 @@ public class playState extends AbstractAppState {
         }); 
         return betWinMain;
     }
+    
     //GUI for the game over menu
     public Container getGOmenu(String gameStatus){
         goGUI = new Container(new BorderLayout());
@@ -318,6 +324,7 @@ public class playState extends AbstractAppState {
                     guiNode.detachChild(actionGUI);
                 if(guiNode.getChildIndex(goGUI)!=-1)
                     guiNode.detachChild(goGUI);
+                localRootNode.detachAllChildren();
                 initGame(); 
             } 
         });
@@ -433,7 +440,17 @@ public class playState extends AbstractAppState {
             } 
         });
         return escWindow;
-    }        
+    }
+    
+    private Container getCountingGUI(){
+        cntGUI = new Container(new BoxLayout(Axis.Y, FillMode.First));
+        cntGUI.setLocalTranslation(0, 250, 0);
+        Label pCntLbl = cntGUI.attachChild(pCount());
+        Label dCntLbl = cntGUI.attachChild(dCount());
+        return cntGUI;
+    }
+    
+    
     
     void initGame(){
         deck = new Deck();        
