@@ -60,7 +60,7 @@ public class playState extends AbstractAppState {
     private Container escGUI;
     private Container wallet;
     private List<Spatial> savedGUI = new ArrayList();
-    private List<Boolean> phases;
+    private PHASES phase;
     
     private boolean isHit;
     private boolean isSplit;
@@ -77,7 +77,8 @@ public class playState extends AbstractAppState {
     private double multiplier = 0;
     
     //private double 
-     
+    public enum PLAYERS{P1, P2, P3,PN}
+    public enum PHASES{BET, DRAW, ACTION, SPLIT,DEALER, REVEAL};
      
     public playState(SimpleApplication app){        
         
@@ -114,17 +115,15 @@ public class playState extends AbstractAppState {
         wallet.setLocalTranslation(0, 250, 0); 
         guiNode.attachChild(wallet); 
                          
-         
+        getCountingGUI(); 
     } 
     
     private String labelWallet(){
-        StringBuilder walletLabel=new StringBuilder("$   "+Integer.toString(user.getWallet()));
+        StringBuilder walletLabel=new StringBuilder("$   "+ Long.toString(user.getWallet()));
         int intFound = walletLabel.lastIndexOf(" ");
-        for(int i=(walletLabel.length()-3); i>intFound; i-=3){
+        for(int i=(walletLabel.length()-3); i>(intFound+1); i-=3){
             walletLabel.insert(i, ',');
         }
-        // Use google stringbuilder?
-        //Joiner joiner = =Joiner
         return walletLabel.toString();
     }
     
@@ -143,13 +142,13 @@ public class playState extends AbstractAppState {
     public void update(float tpf){
         super.update(tpf);
         //Betting Phase
-        if(phases.get(0)==false){
+        if(phase==PHASES.BET){
             //if(GUI isn't attached)
             if (guiNode.getChildIndex(betGUI)==-1){                
                 guiNode.attachChild(betGUI);
             }
         }//Dealing Phase
-        else if(phases.get(0)==true && phases.get(1)==false){
+        else if(phase==PHASES.ACTION){
             //If Action GUI isn't attached
             if(guiNode.getChildIndex(actionGUI)==-1){
                 guiNode.detachChild(betGUI);
@@ -165,10 +164,10 @@ public class playState extends AbstractAppState {
                 //add split phase
             }
            
-            phases.add(1, true);
+            phase=PHASES.ACTION;
             
         }//Action Phase
-        else if(phases.get(1)==true && phases.get(2)==false){
+        else if(phase==PHASES.ACTION){
             if(isHit==true){
                 localRootNode.attachChild(pHand.DrawCard(assetManager));
                 System.out.println("I draw");
@@ -176,21 +175,22 @@ public class playState extends AbstractAppState {
                 isHit=false;
             }
             else if(isStay==true){
-                phases.add(2, true);
+                phase=PHASES.DEALER;
                 isStay=false;
                 
             }
             if(pHand.isSplittable()){
                 //attach split button
-                //
+                //phase = PHASES.SPLIT;
+                //phase = PHASES.DEALER;
             }
         }//Dealer Phase
-        else if(phases.get(2)==true && phases.get(3)==false){
+        else if(phase==PHASES.DEALER){
             while(dHand.getTotal()<17)
                 localRootNode.attachChild(dHand.DrawCard(assetManager));
-            phases.add(3, true);
+           phase=PHASES.REVEAL;
         }
-        else if(phases.get(3)==true && phases.get(4)==false){
+        else if(phase==PHASES.REVEAL){
             if(pHand.getTotal()>dHand.getTotal() && pHand.getTotal()<=21){
                 if(bet>0){
                     user.addWallet((bet/2)*3);
@@ -247,7 +247,7 @@ public class playState extends AbstractAppState {
                 if(user.getWallet()>=betAmt){
                     bet=betAmt;
                     user.deductWallet(betAmt);
-                    phases.add(0, true);
+                    phase=PHASES.DRAW;
                     System.out.println(user.getWallet());
                     wallet.detachChild(walNum);
                     walNum = wallet.addChild(new Label(labelWallet()));
@@ -263,7 +263,7 @@ public class playState extends AbstractAppState {
                 if(user.getWallet()>=betAmt){
                     bet=betAmt;
                     user.deductWallet(betAmt);
-                    phases.add(0, true);
+                    phase=PHASES.DRAW;
                     wallet.detachChild(walNum);
                     walNum = wallet.addChild(new Label(labelWallet()));
                }
@@ -279,7 +279,7 @@ public class playState extends AbstractAppState {
                 if(user.getWallet()>=betAmt){
                     bet=betAmt;
                     user.deductWallet(betAmt);
-                    phases.add(0, true);
+                    phase=PHASES.DRAW;
                     wallet.detachChild(walNum);
                     walNum=wallet.addChild(new Label(labelWallet()));
                }
@@ -295,7 +295,7 @@ public class playState extends AbstractAppState {
                 if(user.getWallet()>=betAmt){
                     bet=betAmt;
                     user.deductWallet(betAmt);
-                    phases.add(0, true);
+                    phase=PHASES.DRAW;
                     wallet.detachChild(walNum);
                     walNum=wallet.addChild(new Label(labelWallet()));
                }
@@ -443,22 +443,27 @@ public class playState extends AbstractAppState {
     }
     
     private Container getCountingGUI(){
+        if(guiNode.hasChild(cntGUI)){
+            guiNode.detachChild(cntGUI);
+        }
         cntGUI = new Container(new BoxLayout(Axis.Y, FillMode.First));
-        cntGUI.setLocalTranslation(0, 250, 0);
-        Label pCntLbl = cntGUI.attachChild(pCount());
-        Label dCntLbl = cntGUI.attachChild(dCount());
-        return cntGUI;
+        cntGUI.setLocalTranslation(0, 250, 0);        
+        int pCntLbl = cntGUI.attachChild(new Label("Player: "+ pHand.getTotal()));
+        int dCntLbl = cntGUI.attachChild(new Label("Player: "+ dHand.getTotal()));
+        guiNode.attachChild(cntGUI);
     }
     
+    private Label pCount(String plID){
+        return = ;
+        
+    }
     
     
     void initGame(){
         deck = new Deck();        
         pHand = new Hand("player", deck);
         dHand = new Hand("dealer", deck);
-        phases = new ArrayList();
-        for( int i =0; i<5; i++)
-            phases.add(false);
+        phase=PHASES.BET;
         isHit = false; isSplit = false; isStay = false;//Supposed to set false every update?
 
     }

@@ -5,7 +5,7 @@ package mygame;
  */
 public class Player{
     private String pName;
-    private int wallet;
+    private long wallet;
     private int win;
     private int loss;
     private int lrgRtn;
@@ -36,7 +36,7 @@ public class Player{
         wallet+=d;
     }
     
-    public int getWallet(){
+    public long getWallet(){
         return wallet;
     }
     
