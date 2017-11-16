@@ -43,6 +43,7 @@ public class mainMenu extends AbstractAppState{
     private final AppStateManager stateManager;
     private boolean playAppState = false;
     private boolean settingsAppState = false;
+    private boolean exitState = false;
     private SimpleApplication app;
     
     protected Spatial pokerChip1;
@@ -114,7 +115,7 @@ public class mainMenu extends AbstractAppState{
         
         Container mmWindow = new Container(new BoxLayout(Axis.X, FillMode.Even));
         guiNode.attachChild(mmWindow);
-        mmWindow.setLocalTranslation(30, 100, 0);
+        mmWindow.setLocalTranslation(90, 70, 0);
         Button playGame = mmWindow.addChild(new Button("Play Game"));
         Button settings = mmWindow.addChild(new Button("Settings"));
         playGame.addClickCommands(new Command<Button>(){
@@ -133,6 +134,17 @@ public class mainMenu extends AbstractAppState{
                 stateManager.attach(new settingsState((SimpleApplication) stateManager.getApplication()));
             }
         });
+        Container escButton = new Container(new BoxLayout(Axis.X, FillMode.Even));
+        guiNode.attachChild(escButton);
+        escButton.setLocalTranslation(250, 250, 0);
+        Button exit = escButton.addChild(new Button("X"));
+        exit.addClickCommands(new Command<Button>(){
+            @Override
+            public void execute(Button source){
+                exitState=true;
+            }
+        });
+
         
     }
     
@@ -159,12 +171,16 @@ public class mainMenu extends AbstractAppState{
         pokerChip2.rotate(0,0,(2*tpf));
         pokerChip3.rotate(0,0,(2*tpf));
         pokerChip4.rotate(0,0,(2*tpf));
-        if(playAppState==true||settingsAppState==true){
+        if(playAppState==true||settingsAppState==true||exitState==true){
             
             if(playAppState==true)
                 
             if(settingsAppState==true)
                 stateManager.attach(new settingsState(this.app));
+            if(exitState==true)
+                app.stop();
+        }
+
         }
         
     }
@@ -175,4 +191,4 @@ public class mainMenu extends AbstractAppState{
 //        pokerMat1.setTexture("ColorMap", assetManager.loadTexture(cardFace));
 //        pokerChip1.setMaterial(pokerMat1);
 //    }
-}
+

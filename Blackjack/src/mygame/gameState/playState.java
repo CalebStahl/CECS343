@@ -40,6 +40,7 @@ import mygame.Deck;
 import mygame.Hand;
 import mygane.menuState.mainMenu;
 import mygame.Player;
+import mygame.settingState.settingsState;
  
  
 /** 
@@ -147,8 +148,6 @@ public class playState extends AbstractAppState {
         switch (phase) {
         //Dealing Phase
             case BET:
-                System.out.println("In draw Phase");
-                //if(GUI isn't attached)
                 if (guiNode.getChildIndex(betGUI)==-1){
                     guiNode.attachChild(betGUI);
                 }   break;
@@ -204,13 +203,28 @@ public class playState extends AbstractAppState {
                         user.addWallet((bet/2)*3);
                         bet=0;
                     }
-                    if(guiNode.getChildIndex(goGUI)==-1)
+                    if(guiNode.getChildIndex(goGUI)==-1){
+                        getCountingGUI();
                         guiNode.attachChild(getGOmenu("Player Won!"));
+                    }
                 }
-                else{
-                    if(guiNode.getChildIndex(goGUI)==-1)
+                else if(dHand.getTotal()<=21){
+                    if(guiNode.getChildIndex(goGUI)==-1){
+                        getCountingGUI();
                         guiNode.attachChild(getGOmenu("House Won!"));
-                }   break;
+                    }
+                } else {
+                    if(bet>0){
+                        user.addWallet((bet/2));
+                        bet=0;
+                    }
+                    if(guiNode.getChildIndex(goGUI)==-1){
+                        getCountingGUI();
+                        guiNode.attachChild(getGOmenu("TIE"));
+                        
+                    }
+                }  
+                break;
             default:
                 break;
         
@@ -240,11 +254,10 @@ public class playState extends AbstractAppState {
     //GUI for the bet menu phase
     public Container getBetMenu(){ 
         Container betWinMain =  new Container(new BorderLayout());
-        betWinMain.setLocalTranslation(90,50,0);
+        betWinMain.setLocalTranslation(50,50,0);
         Container betWindow = new Container(new BoxLayout(Axis.X, FillMode.Even)); 
         betWinMain.addChild(betWindow, BorderLayout.Position.Center); 
         betWinMain.addChild(new Label("Bet"), BorderLayout.Position.North); 
-        //mainWindow.addChild(betWinMain, BorderLayout.Position.East); 
         Button oneK = betWindow.addChild(new Button("$ 1,000")); 
         Button twoK = betWindow.addChild(new Button("$ 2,000"));
         Button fiveK = betWindow.addChild(new Button("$ 5,000")); 
@@ -318,12 +331,13 @@ public class playState extends AbstractAppState {
     //GUI for the game over menu
     public Container getGOmenu(String gameStatus){
         goGUI = new Container(new BorderLayout());
-        goGUI.setLocalTranslation(30,250,0);
+        goGUI.setLocalTranslation(50,250,0);
         goGUI.addChild(new Label(gameStatus + " Actions\n Play Again?"), BorderLayout.Position.North); 
-        //goWindow.addChild(goWindow, BorderLayout.Position.Center);  
-        Button yes = goGUI.addChild(new Button("Yes"), BorderLayout.Position.West); 
-        Button no = goGUI.addChild(new Button("No(Eventually Save too)"), BorderLayout.Position.Center); 
-        Button ExitGame = goGUI.addChild(new Button("Exit Game"), BorderLayout.Position.East);
+        Container guiButtons = new Container(new BoxLayout(Axis.X, FillMode.Even));
+        goGUI.addChild(guiButtons, BorderLayout.Position.Center);
+        Button yes = guiButtons.addChild(new Button("Yes")); 
+        Button no = guiButtons.addChild(new Button("No")); 
+        Button ExitGame = guiButtons.addChild(new Button("Exit Game"));
         yes.addClickCommands(new Command<Button>(){ 
             @Override 
             public void execute(Button source){ 
@@ -429,6 +443,14 @@ public class playState extends AbstractAppState {
                 guiNode.detachAllChildren();
                 stateManager.detach(stateManager.getState(playState.class));
                 stateManager.attach(new mainMenu(app));
+            }
+        });
+        _Settings.addClickCommands(new Command<Button>(){
+            @Override public void execute(Button source){
+                SimpleApplication app =(SimpleApplication) stateManager.getApplication();
+                guiNode.detachAllChildren();
+                stateManager.detach(stateManager.getState(playState.class));
+                stateManager.attach(new settingsState(app));
             }
         });
         _Cancel.addClickCommands(new Command<Button>(){ 

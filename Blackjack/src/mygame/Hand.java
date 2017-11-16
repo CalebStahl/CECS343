@@ -42,11 +42,11 @@ public class Hand{
                 case CARD3:
                     //Cards 1 and 2 need to start being moved over so update
                     //translations for them as well
-                    cardImage.setLocalTranslation(-1.5f, 0.5f, 0.0f);
+                    cardImage.setLocalTranslation(1.5f, 0.5f, 0.0f);
                     break;
                 case CARD4:
                     //same as above
-                    cardImage.setLocalTranslation(-1.5f, 0.5f, 0.0f);
+                    cardImage.setLocalTranslation(3.5f, 0.5f, 0.0f);
                     break;
                 default:
                     break;
@@ -64,11 +64,11 @@ public class Hand{
                 case CARD3:
                     //Cards 1 and 2 need to start being moved over so update
                     //translations for them as well
-                    cardImage.setLocalTranslation(-1.5f, 2.5f, 0.0f);
+                    cardImage.setLocalTranslation(1.5f, 2.5f, 0.0f);
                     break;
                 case CARD4:
                     //same as above
-                    cardImage.setLocalTranslation(-1.5f, 2.5f, 0.0f);
+                    cardImage.setLocalTranslation(3.5f, 2.5f, 0.0f);
                     break;
                 default:
                     break;
