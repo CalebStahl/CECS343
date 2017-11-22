@@ -38,8 +38,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import mygame.Deck;
 import mygame.Hand;
+import mygame.PHASES;
 import mygane.menuState.mainMenu;
 import mygame.Player;
+import mygame.getGUI;
 import mygame.settingState.settingsState;
  
  
@@ -54,12 +56,7 @@ public class playState extends AbstractAppState {
     private final AssetManager assetManager; 
     private final InputManager inputManager;
     private final AppStateManager stateManager;
-    private Container betGUI;
-    private Container actionGUI;
-    private Container cntGUI;
-    private Container goGUI;
-    private Container escGUI;
-    private Container wallet;
+    
     private List<Spatial> savedGUI = new ArrayList();
     private PHASES phase;
     
@@ -78,8 +75,7 @@ public class playState extends AbstractAppState {
     private double multiplier;
     
     //private double 
-    public enum PLAYERS{P1, P2, P3,PN}
-    public enum PHASES{BET, DRAW, ACTION, SPLIT,DEALER, REVEAL, BROKE};
+    private enum PLAYERS{P1, P2, P3,PN}
      
     public playState(SimpleApplication app){        
         
@@ -118,7 +114,7 @@ public class playState extends AbstractAppState {
         wallet.setLocalTranslation(0, 250, 0); 
         guiNode.attachChild(wallet); 
                          
-        getCountingGUI(); 
+        getGUI.counter(); 
     } 
     
     private String labelWallet(){
@@ -251,153 +247,7 @@ public class playState extends AbstractAppState {
         rootNode.addLight(sun); 
     } 
     
-    //GUI for the bet menu phase
-    public Container getBetMenu(){ 
-        Container betWinMain =  new Container(new BorderLayout());
-        betWinMain.setLocalTranslation(50,50,0);
-        Container betWindow = new Container(new BoxLayout(Axis.X, FillMode.Even)); 
-        betWinMain.addChild(betWindow, BorderLayout.Position.Center); 
-        betWinMain.addChild(new Label("Bet"), BorderLayout.Position.North); 
-        Button oneK = betWindow.addChild(new Button("$ 1,000")); 
-        Button twoK = betWindow.addChild(new Button("$ 2,000"));
-        Button fiveK = betWindow.addChild(new Button("$ 5,000")); 
-        Button tenK = betWindow.addChild(new Button("$ 10,000")); 
-        oneK.addClickCommands(new Command<Button>(){ 
-           @Override 
-           public void execute(Button source){
-                int betAmt = 1000;                 
-                if(user.getWallet()>=betAmt){
-                    bet=betAmt;
-                    user.deductWallet(betAmt);
-                    phase=PHASES.DRAW;                    
-                    wallet.detachChild(walNum);
-                    walNum = wallet.addChild(new Label(labelWallet()));
-                }
-               else{
-                   System.out.println("Not Enough Money.");
-               }
-        }});
-        twoK.addClickCommands(new Command<Button>(){ 
-           @Override 
-           public void execute(Button source){
-               int betAmt = 2000;
-                if(user.getWallet()>=betAmt){
-                    bet=betAmt;
-                    user.deductWallet(betAmt);
-                    phase=PHASES.DRAW;
-                    wallet.detachChild(walNum);
-                    walNum = wallet.addChild(new Label(labelWallet()));
-               }
-               else{
-                   System.out.println("Not Enough Money.");
-               }
-        }             
-        });
-        fiveK.addClickCommands(new Command<Button>(){ 
-           @Override 
-           public void execute(Button source){
-               int betAmt = 5000;
-                if(user.getWallet()>=betAmt){
-                    bet=betAmt;
-                    user.deductWallet(betAmt);
-                    phase=PHASES.DRAW;
-                    wallet.detachChild(walNum);
-                    walNum=wallet.addChild(new Label(labelWallet()));
-               }
-               else{
-                   System.out.println("Not Enough Money.");
-               }
-        }             
-        }); 
-        tenK.addClickCommands(new Command<Button>(){ 
-           @Override 
-           public void execute(Button source){
-               int betAmt = 10000;
-                if(user.getWallet()>=betAmt){
-                    bet=betAmt;
-                    user.deductWallet(betAmt);
-                    phase=PHASES.DRAW;
-                    wallet.detachChild(walNum);
-                    walNum=wallet.addChild(new Label(labelWallet()));
-               }
-               else{
-                   System.out.println("Not Enough Money.");
-               }
-        }             
-        }); 
-        return betWinMain;
-    }
-    
-    //GUI for the game over menu
-    public Container getGOmenu(String gameStatus){
-        goGUI = new Container(new BorderLayout());
-        goGUI.setLocalTranslation(50,250,0);
-        goGUI.addChild(new Label(gameStatus + " Actions\n Play Again?"), BorderLayout.Position.North); 
-        Container guiButtons = new Container(new BoxLayout(Axis.X, FillMode.Even));
-        goGUI.addChild(guiButtons, BorderLayout.Position.Center);
-        Button yes = guiButtons.addChild(new Button("Yes")); 
-        Button no = guiButtons.addChild(new Button("No")); 
-        Button ExitGame = guiButtons.addChild(new Button("Exit Game"));
-        yes.addClickCommands(new Command<Button>(){ 
-            @Override 
-            public void execute(Button source){ 
-                //user.saveGame();
-                if(guiNode.getChildIndex(actionGUI)!=-1)
-                    guiNode.detachChild(actionGUI);
-                if(guiNode.getChildIndex(goGUI)!=-1)
-                    guiNode.detachChild(goGUI);
-                localRootNode.detachAllChildren();
-                initGame(); 
-            } 
-        });
-        no.addClickCommands(new Command<Button>(){ 
-            @Override 
-            public void execute(Button source){
-                SimpleApplication app =(SimpleApplication) stateManager.getApplication();
-                stateManager.attach(new mainMenu(app));
-                stateManager.detach(stateManager.getState(playState.class));
-            } 
-        });
-        ExitGame.addClickCommands(new Command<Button>(){ 
-            @Override 
-            public void execute(Button source){ 
-                isHit=true; 
-            } 
-        });
-        return goGUI;
-    }
-    
-    public Container getActionMenu(){
-        Container actWinMain = new Container(new BorderLayout());
-        actWinMain.setLocalTranslation(90,50,0);
-        Container actionWindow = new Container(new BoxLayout(Axis.X, FillMode.Even)); 
-        actWinMain.addChild(new Label("Actions"), BorderLayout.Position.North); 
-        actWinMain.addChild(actionWindow, BorderLayout.Position.Center); 
-        //mainWindow.addChild(actWinMain, BorderLayout.Position.West); 
-        Button hit = actionWindow.addChild(new Button("HIT")); 
-        Button stand = actionWindow.addChild(new Button("STAND")); 
-        Button split = actionWindow.addChild(new Button("SPLIT")); 
-        hit.addClickCommands(new Command<Button>(){ 
-            @Override 
-            public void execute(Button source){ 
-                isHit=true; 
-            } 
-        });
-        stand.addClickCommands(new Command<Button>(){ 
-            @Override 
-            public void execute(Button source){ 
-                isStay=true;
-            } 
-        });
-        split.addClickCommands(new Command<Button>(){ 
-            @Override 
-            public void execute(Button source){ 
-                isSplit=true; 
-            } 
-        });
-        return actWinMain;
-    }
-    
+
     private void initKeys(){
         inputManager.deleteMapping(SimpleApplication.INPUT_MAPPING_EXIT);
         inputManager.addMapping("ESCAPE", new KeyTrigger(KeyInput.KEY_ESCAPE));
@@ -427,61 +277,9 @@ public class playState extends AbstractAppState {
         }
     };
     
-    private Container getEscMenu(){
-        Container escWindow = new Container(new BorderLayout());
-        escWindow.setLocalTranslation(180, 250,0); 
-        Container escButtons = new Container(new BoxLayout(Axis.Y, FillMode.Even));
-        escWindow.addChild(new Label("Escape Menu"), BorderLayout.Position.North);
-        Button _MainMenu = escButtons.addChild(new Button("Main Menu"));
-        Button _Settings = escButtons.addChild(new Button("SETTINGS"));
-        Button _SaveGame = escButtons.addChild(new Button("Save Game"));
-        Button _Cancel = escButtons.addChild(new Button("Cancel"));
-        escWindow.addChild(escButtons);
-        _MainMenu.addClickCommands(new Command<Button>(){
-            @Override public void execute(Button source){
-                SimpleApplication app =(SimpleApplication) stateManager.getApplication();
-                guiNode.detachAllChildren();
-                stateManager.detach(stateManager.getState(playState.class));
-                stateManager.attach(new mainMenu(app));
-            }
-        });
-        _Settings.addClickCommands(new Command<Button>(){
-            @Override public void execute(Button source){
-                SimpleApplication app =(SimpleApplication) stateManager.getApplication();
-                guiNode.detachAllChildren();
-                stateManager.detach(stateManager.getState(playState.class));
-                stateManager.attach(new settingsState(app));
-            }
-        });
-        _Cancel.addClickCommands(new Command<Button>(){ 
-            @Override 
-            public void execute(Button source){ 
-                if(bet==0){
-                    guiNode.detachChild(escGUI);
-                    guiNode.attachChild(betGUI);
-                }
-                 if(bet>0){
-                    guiNode.detachChild(escGUI);
-                    for(int i=0; i<savedGUI.size(); i++){   //Need to Fix this too...
-                        System.out.println("I assume that this is not working?");
-                        guiNode.attachChild(savedGUI.remove(i));
-                    }
-                }
-            } 
-        });
-        return escWindow;
-    }
     
-    private void getCountingGUI(){
-        if(guiNode.hasChild(cntGUI)){
-            guiNode.detachChild(cntGUI);
-        }
-        cntGUI = new Container(new BoxLayout(Axis.Y, FillMode.Even));
-        cntGUI.setLocalTranslation(0, 200, 0);
-        cntGUI.addChild(new Label("Dealer: "+ dHand.getTotal()));
-        cntGUI.addChild(new Label("Player: "+ pHand.getTotal()));
-        guiNode.attachChild(cntGUI);
-    }
+    
+    
     
     
     
