@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
 import mygame.Deck;
+import mygame.GAMEOVER.youLose;
 import mygame.Hand;
 import mygane.menuState.mainMenu;
 import mygame.Player;
@@ -82,7 +83,6 @@ public class playState extends AbstractAppState {
     public enum PHASES{BET, DRAW, ACTION, SPLIT,DEALER, REVEAL, BROKE};
      
     public playState(SimpleApplication app){        
-        
         stateManager = app.getStateManager();
         rootNode  =  app.getRootNode(); 
         guiNode  =  app.getGuiNode(); 
@@ -150,12 +150,16 @@ public class playState extends AbstractAppState {
             case BET:
                 if (guiNode.getChildIndex(betGUI)==-1){
                     guiNode.attachChild(betGUI);
+                }
+                if(user.getWallet()<=1000){
+                    phase = PHASES.BROKE;
                 }   break;
-//        if(phase==PHASES.BROKE){
-//            SimpleApplication app =(SimpleApplication) stateManager.getApplication();
-//            stateManager.attach(new youLose(app));
-//            stateManager.detach(stateManager.getState(playState.class));
-//        }
+                
+            case BROKE:
+                SimpleApplication app =(SimpleApplication) stateManager.getApplication();
+                stateManager.attach(new youLose(app));
+                stateManager.detach(stateManager.getState(playState.class));
+                break;
         //Action Phase
             case DRAW:
                 System.out.println("in action phase");
