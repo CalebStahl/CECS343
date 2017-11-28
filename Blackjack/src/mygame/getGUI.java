@@ -40,6 +40,9 @@ public class getGUI {
     private Container goGUI;
     private Container escGUI;
     private Container wallet;
+    private Container aaa;
+    private Container aaas;
+    private Container asdf;
     
     private List<Spatial> spList;
     
