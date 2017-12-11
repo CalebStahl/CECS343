@@ -48,13 +48,6 @@ public class Player{
         return loss;
     }
     
-    public void setLrgRtn(int amtRtn){
-        if(amtRtn>lrgRtn)
-            lrgRtn=amtRtn;
-        else
-            System.out.println("Current value is larger");
-    }
-    
     public int getLrgRtn(){
         return lrgRtn;
     }

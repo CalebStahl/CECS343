@@ -4,6 +4,7 @@ package mygame;
  * @Edited - Adam
  */
 import com.jme3.asset.AssetManager;
+import com.jme3.math.Quaternion;
 import com.jme3.scene.Spatial;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,19 +35,20 @@ public class Hand{
             if(null!=CARD)
                 switch (CARD) {
                 case CARD1:
-                     cardImage.setLocalTranslation(-2.5f, 0.5f, 0.0f);
+                     cardImage.setLocalTranslation(-3.5f,-1f, 0.0f);
                     break;
                 case CARD2:
-                    cardImage.setLocalTranslation(0.5f, 0.5f, 0.0f);
+                    cardImage.setLocalTranslation(-1.0f, -1f,0.0f);
                     break;
                 case CARD3:
                     //Cards 1 and 2 need to start being moved over so update
                     //translations for them as well
-                    cardImage.setLocalTranslation(1.5f, 0.5f, 0.0f);
+                    cardImage.setLocalTranslation(1.5f, -1f, 0.0f);
+                    System.out.print(cardImage.getLocalRotation());
                     break;
                 case CARD4:
                     //same as above
-                    cardImage.setLocalTranslation(3.5f, 0.5f, 0.0f);
+                    cardImage.setLocalTranslation(4.0f, -1f, 0.0f);
                     break;
                 default:
                     break;
@@ -56,10 +58,11 @@ public class Hand{
             if(null!=CARD)
                 switch (CARD) {
                 case CARD1:
-                    cardImage.setLocalTranslation(-2.5f, 3.5f, 0.0f);
+                    cardImage.setLocalTranslation(-3.5f, 3.5f, 0.0f);
                     break;
                 case CARD2:
-                    cardImage.setLocalTranslation(0.5f, 3.5f, 0.0f);
+                    cardImage.setLocalTranslation(-1.0f, 3.5f, 0.0f);
+                    cardImage.setLocalRotation(Quaternion.ZERO);
                     break;
                 case CARD3:
                     //Cards 1 and 2 need to start being moved over so update
@@ -68,7 +71,7 @@ public class Hand{
                     break;
                 case CARD4:
                     //same as above
-                    cardImage.setLocalTranslation(3.5f, 2.5f, 0.0f);
+                    cardImage.setLocalTranslation(4.0f, 2.5f, 0.0f);
                     break;
                 default:
                     break;

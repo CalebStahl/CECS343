@@ -154,13 +154,13 @@ public class playState extends AbstractAppState {
                 if(user.getWallet()<=1000){
                     phase = PHASES.BROKE;
                 }   break;
-                
+            //BROKE PHASE/SCREEN    
             case BROKE:
-                SimpleApplication app =(SimpleApplication) stateManager.getApplication();
+                SimpleApplication app = (SimpleApplication) stateManager.getApplication();
                 stateManager.attach(new youLose(app));
                 stateManager.detach(stateManager.getState(playState.class));
                 break;
-        //Action Phase
+        //Draw Phase
             case DRAW:
                 System.out.println("in action phase");
                 //If Action GUI isn't attached
@@ -168,22 +168,30 @@ public class playState extends AbstractAppState {
                     guiNode.detachChild(betGUI);
                     guiNode.attachChild(actionGUI);
                 }   localRootNode.attachChild(pHand.DrawCard(assetManager));
+                if(deck.cardsLeft()<5){
+                    deck.initDeck();
+                }
                 localRootNode.attachChild(dHand.DrawCard(assetManager));
                 localRootNode.attachChild(pHand.DrawCard(assetManager));
                 localRootNode.attachChild(dHand.DrawCard(assetManager));
                 getCountingGUI();
+                if(dHand.getTotal()>=21  || pHand.getTotal()>=21)
+                    phase=PHASES.REVEAL;
                 //
                 if(dHand.isSplittable()){
                     //create splittable button
                     //add split phase
                 }   phase=PHASES.ACTION;
                 break;
-        //Dealer Phase
+        //Action Phase
             case ACTION:
+                if(dHand.getTotal()>=21  || pHand.getTotal()>=21)
+                    phase=PHASES.REVEAL;
                 if(isHit==true){
                     localRootNode.attachChild(pHand.DrawCard(assetManager));
                     getCountingGUI();
-                    //pHand.hasCondition
+                    if(dHand.getTotal()>=21  || pHand.getTotal()>=21)
+                        phase=PHASES.REVEAL;
                     isHit=false;
                 }
                 else if(isStay==true){
@@ -195,35 +203,44 @@ public class playState extends AbstractAppState {
                     //phase = PHASES.SPLIT;
                     //phase = PHASES.DEALER;
                 }   break;
+        //Dealer Phase
             case DEALER:
                 while(dHand.getTotal()<17)
                     localRootNode.attachChild(dHand.DrawCard(assetManager));
                 getCountingGUI();
                 phase=PHASES.REVEAL;
                 break;
+        //Reveal(Final) Phase
             case REVEAL:
-                if(pHand.getTotal()>dHand.getTotal() && pHand.getTotal()<=21){
+                //PLAYER WINS
+                if((pHand.getTotal()>dHand.getTotal()|| dHand.getTotal()>21) && pHand.getTotal()<=21){
                     if(bet>0){
                         user.addWallet((bet/2)*3);
                         bet=0;
+                        wallet.detachChild(walNum);
+                        walNum = wallet.addChild(new Label(labelWallet()));
                     }
                     if(guiNode.getChildIndex(goGUI)==-1){
-                        getCountingGUI();
                         guiNode.attachChild(getGOmenu("Player Won!"));
                     }
-                }
-                else if(dHand.getTotal()<=21){
-                    if(guiNode.getChildIndex(goGUI)==-1){
-                        getCountingGUI();
-                        guiNode.attachChild(getGOmenu("House Won!"));
+                }//HOUSE WINS
+                else if((pHand.getTotal()<dHand.getTotal()|| pHand.getTotal()>21) && dHand.getTotal()<=21){
+                    if(bet>0){
+                        bet=0;
+                        wallet.detachChild(walNum);
+                        walNum = wallet.addChild(new Label(labelWallet()));
                     }
+                    if(guiNode.getChildIndex(goGUI)==-1){
+                        guiNode.attachChild(getGOmenu("House Won!"));
+                    }//TIE
                 } else {
                     if(bet>0){
                         user.addWallet((bet/2));
                         bet=0;
+                        wallet.detachChild(walNum);
+                        walNum = wallet.addChild(new Label(labelWallet()));
                     }
                     if(guiNode.getChildIndex(goGUI)==-1){
-                        getCountingGUI();
                         guiNode.attachChild(getGOmenu("TIE"));
                         
                     }
@@ -335,13 +352,14 @@ public class playState extends AbstractAppState {
     //GUI for the game over menu
     public Container getGOmenu(String gameStatus){
         goGUI = new Container(new BorderLayout());
-        goGUI.setLocalTranslation(50,250,0);
+        goGUI.setAlpha(100);
+        goGUI.setLocalTranslation(120,210,0);
         goGUI.addChild(new Label(gameStatus + " Actions\n Play Again?"), BorderLayout.Position.North); 
         Container guiButtons = new Container(new BoxLayout(Axis.X, FillMode.Even));
         goGUI.addChild(guiButtons, BorderLayout.Position.Center);
         Button yes = guiButtons.addChild(new Button("Yes")); 
         Button no = guiButtons.addChild(new Button("No")); 
-        Button ExitGame = guiButtons.addChild(new Button("Exit Game"));
+        //Button ExitGame = guiButtons.addChild(new Button("Exit Game"));
         yes.addClickCommands(new Command<Button>(){ 
             @Override 
             public void execute(Button source){ 
@@ -362,15 +380,11 @@ public class playState extends AbstractAppState {
                 stateManager.detach(stateManager.getState(playState.class));
             } 
         });
-        ExitGame.addClickCommands(new Command<Button>(){ 
-            @Override 
-            public void execute(Button source){ 
-                isHit=true; 
-            } 
-        });
+        
         return goGUI;
     }
     
+    //GUI for Bet Menu
     public Container getActionMenu(){
         Container actWinMain = new Container(new BorderLayout());
         actWinMain.setLocalTranslation(90,50,0);
@@ -380,7 +394,7 @@ public class playState extends AbstractAppState {
         //mainWindow.addChild(actWinMain, BorderLayout.Position.West); 
         Button hit = actionWindow.addChild(new Button("HIT")); 
         Button stand = actionWindow.addChild(new Button("STAND")); 
-        Button split = actionWindow.addChild(new Button("SPLIT")); 
+        Button dDown = actionWindow.addChild(new Button("DOUBLE DOWN")); 
         hit.addClickCommands(new Command<Button>(){ 
             @Override 
             public void execute(Button source){ 
@@ -393,15 +407,24 @@ public class playState extends AbstractAppState {
                 isStay=true;
             } 
         });
-        split.addClickCommands(new Command<Button>(){ 
+        dDown.addClickCommands(new Command<Button>(){ 
             @Override 
             public void execute(Button source){ 
-                isSplit=true; 
+                if(bet<=user.getWallet()){
+                    user.deductWallet(bet);
+                    bet*=2;
+                    localRootNode.attachChild(pHand.DrawCard(assetManager));
+                    if(pHand.getTotal()>=21)
+                        phase=PHASES.REVEAL;
+                    else
+                        phase=PHASES.DEALER;
+                } 
             } 
         });
         return actWinMain;
     }
     
+    //Key Rebindings
     private void initKeys(){
         inputManager.deleteMapping(SimpleApplication.INPUT_MAPPING_EXIT);
         inputManager.addMapping("ESCAPE", new KeyTrigger(KeyInput.KEY_ESCAPE));
@@ -416,15 +439,15 @@ public class playState extends AbstractAppState {
         public void onAction(String name, boolean keyPressed, float tpf) {
             if (name.equals("ESCAPE") && !keyPressed) {
                 if(guiNode.getChildIndex(escGUI)==-1){
-                    savedGUI = guiNode.getChildren();
-                    guiNode.detachAllChildren();
+//                    savedGUI = guiNode.getChildren();
+//                    guiNode.detachAllChildren();
                     guiNode.attachChild(escGUI);
                 }
                 else{
                    guiNode.detachChild(escGUI);
-                   for(int i=0; i<savedGUI.size(); i++){
-                        System.out.println("Why isn't this work right?");
-                        guiNode.attachChild((Spatial) savedGUI.remove(i));}
+//                   for(int i=0; i<savedGUI.size(); i++){
+//                        System.out.println("Why isn't this work right?");
+//                        guiNode.attachChild((Spatial) savedGUI.remove(i));}
                 }
                 
             }
@@ -433,7 +456,7 @@ public class playState extends AbstractAppState {
     
     private Container getEscMenu(){
         Container escWindow = new Container(new BorderLayout());
-        escWindow.setLocalTranslation(180, 250,0); 
+        escWindow.setLocalTranslation(120, 220,0); 
         Container escButtons = new Container(new BoxLayout(Axis.Y, FillMode.Even));
         escWindow.addChild(new Label("Escape Menu"), BorderLayout.Position.North);
         Button _MainMenu = escButtons.addChild(new Button("Main Menu"));
@@ -481,7 +504,7 @@ public class playState extends AbstractAppState {
             guiNode.detachChild(cntGUI);
         }
         cntGUI = new Container(new BoxLayout(Axis.Y, FillMode.Even));
-        cntGUI.setLocalTranslation(0, 200, 0);
+        cntGUI.setLocalTranslation(260, 250, 0);
         cntGUI.addChild(new Label("Dealer: "+ dHand.getTotal()));
         cntGUI.addChild(new Label("Player: "+ pHand.getTotal()));
         guiNode.attachChild(cntGUI);
