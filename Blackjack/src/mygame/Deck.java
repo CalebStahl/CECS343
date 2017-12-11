@@ -30,7 +30,7 @@ public final class Deck{
     
     //Returns the amount of cards left
     public int cardsLeft(){
-        return cards;
+        return cardDeck.size();
     }
     
     //Shuffle the deck
@@ -51,6 +51,9 @@ public final class Deck{
     
     //Resets the deck to have all 52 cards in order
     public void initDeck(){
+        if(!cardDeck.isEmpty()){
+            cardDeck.clear();
+        }
         String faces[] = { "ace","2","3","4","5","6","7","8","9","10","jack","queen","king" };
 	String suits[] = { "hearts","diamonds","clubs","spades"};
 	for (int index = 0; index < 4; index++) {

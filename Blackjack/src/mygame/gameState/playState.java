@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
 import mygame.Deck;
+import mygame.GAMEOVER.youLose;
 import mygame.Hand;
 import mygame.PHASES;
 import mygane.menuState.mainMenu;
@@ -78,7 +79,6 @@ public class playState extends AbstractAppState {
     private enum PLAYERS{P1, P2, P3,PN}
      
     public playState(SimpleApplication app){        
-        
         stateManager = app.getStateManager();
         rootNode  =  app.getRootNode(); 
         guiNode  =  app.getGuiNode(); 
@@ -146,13 +146,17 @@ public class playState extends AbstractAppState {
             case BET:
                 if (guiNode.getChildIndex(betGUI)==-1){
                     guiNode.attachChild(betGUI);
+                }
+                if(user.getWallet()<=1000){
+                    phase = PHASES.BROKE;
                 }   break;
-//        if(phase==PHASES.BROKE){
-//            SimpleApplication app =(SimpleApplication) stateManager.getApplication();
-//            stateManager.attach(new youLose(app));
-//            stateManager.detach(stateManager.getState(playState.class));
-//        }
-        //Action Phase
+            //BROKE PHASE/SCREEN    
+            case BROKE:
+                SimpleApplication app = (SimpleApplication) stateManager.getApplication();
+                stateManager.attach(new youLose(app));
+                stateManager.detach(stateManager.getState(playState.class));
+                break;
+        //Draw Phase
             case DRAW:
                 System.out.println("in action phase");
                 //If Action GUI isn't attached
@@ -160,22 +164,30 @@ public class playState extends AbstractAppState {
                     guiNode.detachChild(betGUI);
                     guiNode.attachChild(actionGUI);
                 }   localRootNode.attachChild(pHand.DrawCard(assetManager));
+                if(deck.cardsLeft()<5){
+                    deck.initDeck();
+                }
                 localRootNode.attachChild(dHand.DrawCard(assetManager));
                 localRootNode.attachChild(pHand.DrawCard(assetManager));
                 localRootNode.attachChild(dHand.DrawCard(assetManager));
                 getCountingGUI();
+                if(dHand.getTotal()>=21  || pHand.getTotal()>=21)
+                    phase=PHASES.REVEAL;
                 //
                 if(dHand.isSplittable()){
                     //create splittable button
                     //add split phase
                 }   phase=PHASES.ACTION;
                 break;
-        //Dealer Phase
+        //Action Phase
             case ACTION:
+                if(dHand.getTotal()>=21  || pHand.getTotal()>=21)
+                    phase=PHASES.REVEAL;
                 if(isHit==true){
                     localRootNode.attachChild(pHand.DrawCard(assetManager));
                     getCountingGUI();
-                    //pHand.hasCondition
+                    if(dHand.getTotal()>=21  || pHand.getTotal()>=21)
+                        phase=PHASES.REVEAL;
                     isHit=false;
                 }
                 else if(isStay==true){
@@ -187,35 +199,44 @@ public class playState extends AbstractAppState {
                     //phase = PHASES.SPLIT;
                     //phase = PHASES.DEALER;
                 }   break;
+        //Dealer Phase
             case DEALER:
                 while(dHand.getTotal()<17)
                     localRootNode.attachChild(dHand.DrawCard(assetManager));
                 getCountingGUI();
                 phase=PHASES.REVEAL;
                 break;
+        //Reveal(Final) Phase
             case REVEAL:
-                if(pHand.getTotal()>dHand.getTotal() && pHand.getTotal()<=21){
+                //PLAYER WINS
+                if((pHand.getTotal()>dHand.getTotal()|| dHand.getTotal()>21) && pHand.getTotal()<=21){
                     if(bet>0){
                         user.addWallet((bet/2)*3);
                         bet=0;
+                        wallet.detachChild(walNum);
+                        walNum = wallet.addChild(new Label(labelWallet()));
                     }
                     if(guiNode.getChildIndex(goGUI)==-1){
-                        getCountingGUI();
                         guiNode.attachChild(getGOmenu("Player Won!"));
                     }
-                }
-                else if(dHand.getTotal()<=21){
-                    if(guiNode.getChildIndex(goGUI)==-1){
-                        getCountingGUI();
-                        guiNode.attachChild(getGOmenu("House Won!"));
+                }//HOUSE WINS
+                else if((pHand.getTotal()<dHand.getTotal()|| pHand.getTotal()>21) && dHand.getTotal()<=21){
+                    if(bet>0){
+                        bet=0;
+                        wallet.detachChild(walNum);
+                        walNum = wallet.addChild(new Label(labelWallet()));
                     }
+                    if(guiNode.getChildIndex(goGUI)==-1){
+                        guiNode.attachChild(getGOmenu("House Won!"));
+                    }//TIE
                 } else {
                     if(bet>0){
                         user.addWallet((bet/2));
                         bet=0;
+                        wallet.detachChild(walNum);
+                        walNum = wallet.addChild(new Label(labelWallet()));
                     }
                     if(guiNode.getChildIndex(goGUI)==-1){
-                        getCountingGUI();
                         guiNode.attachChild(getGOmenu("TIE"));
                         
                     }
@@ -247,7 +268,163 @@ public class playState extends AbstractAppState {
         rootNode.addLight(sun); 
     } 
     
+<<<<<<< HEAD
 
+=======
+    //GUI for the bet menu phase
+    public Container getBetMenu(){ 
+        Container betWinMain =  new Container(new BorderLayout());
+        betWinMain.setLocalTranslation(50,50,0);
+        Container betWindow = new Container(new BoxLayout(Axis.X, FillMode.Even)); 
+        betWinMain.addChild(betWindow, BorderLayout.Position.Center); 
+        betWinMain.addChild(new Label("Bet"), BorderLayout.Position.North); 
+        Button oneK = betWindow.addChild(new Button("$ 1,000")); 
+        Button twoK = betWindow.addChild(new Button("$ 2,000"));
+        Button fiveK = betWindow.addChild(new Button("$ 5,000")); 
+        Button tenK = betWindow.addChild(new Button("$ 10,000")); 
+        oneK.addClickCommands(new Command<Button>(){ 
+           @Override 
+           public void execute(Button source){
+                int betAmt = 1000;                 
+                if(user.getWallet()>=betAmt){
+                    bet=betAmt;
+                    user.deductWallet(betAmt);
+                    phase=PHASES.DRAW;                    
+                    wallet.detachChild(walNum);
+                    walNum = wallet.addChild(new Label(labelWallet()));
+                }
+               else{
+                   System.out.println("Not Enough Money.");
+               }
+        }});
+        twoK.addClickCommands(new Command<Button>(){ 
+           @Override 
+           public void execute(Button source){
+               int betAmt = 2000;
+                if(user.getWallet()>=betAmt){
+                    bet=betAmt;
+                    user.deductWallet(betAmt);
+                    phase=PHASES.DRAW;
+                    wallet.detachChild(walNum);
+                    walNum = wallet.addChild(new Label(labelWallet()));
+               }
+               else{
+                   System.out.println("Not Enough Money.");
+               }
+        }             
+        });
+        fiveK.addClickCommands(new Command<Button>(){ 
+           @Override 
+           public void execute(Button source){
+               int betAmt = 5000;
+                if(user.getWallet()>=betAmt){
+                    bet=betAmt;
+                    user.deductWallet(betAmt);
+                    phase=PHASES.DRAW;
+                    wallet.detachChild(walNum);
+                    walNum=wallet.addChild(new Label(labelWallet()));
+               }
+               else{
+                   System.out.println("Not Enough Money.");
+               }
+        }             
+        }); 
+        tenK.addClickCommands(new Command<Button>(){ 
+           @Override 
+           public void execute(Button source){
+               int betAmt = 10000;
+                if(user.getWallet()>=betAmt){
+                    bet=betAmt;
+                    user.deductWallet(betAmt);
+                    phase=PHASES.DRAW;
+                    wallet.detachChild(walNum);
+                    walNum=wallet.addChild(new Label(labelWallet()));
+               }
+               else{
+                   System.out.println("Not Enough Money.");
+               }
+        }             
+        }); 
+        return betWinMain;
+    }
+    
+    //GUI for the game over menu
+    public Container getGOmenu(String gameStatus){
+        goGUI = new Container(new BorderLayout());
+        goGUI.setAlpha(100);
+        goGUI.setLocalTranslation(120,210,0);
+        goGUI.addChild(new Label(gameStatus + " Actions\n Play Again?"), BorderLayout.Position.North); 
+        Container guiButtons = new Container(new BoxLayout(Axis.X, FillMode.Even));
+        goGUI.addChild(guiButtons, BorderLayout.Position.Center);
+        Button yes = guiButtons.addChild(new Button("Yes")); 
+        Button no = guiButtons.addChild(new Button("No")); 
+        //Button ExitGame = guiButtons.addChild(new Button("Exit Game"));
+        yes.addClickCommands(new Command<Button>(){ 
+            @Override 
+            public void execute(Button source){ 
+                //user.saveGame();
+                if(guiNode.getChildIndex(actionGUI)!=-1)
+                    guiNode.detachChild(actionGUI);
+                if(guiNode.getChildIndex(goGUI)!=-1)
+                    guiNode.detachChild(goGUI);
+                localRootNode.detachAllChildren();
+                initGame(); 
+            } 
+        });
+        no.addClickCommands(new Command<Button>(){ 
+            @Override 
+            public void execute(Button source){
+                SimpleApplication app =(SimpleApplication) stateManager.getApplication();
+                stateManager.attach(new mainMenu(app));
+                stateManager.detach(stateManager.getState(playState.class));
+            } 
+        });
+        
+        return goGUI;
+    }
+    
+    //GUI for Bet Menu
+    public Container getActionMenu(){
+        Container actWinMain = new Container(new BorderLayout());
+        actWinMain.setLocalTranslation(90,50,0);
+        Container actionWindow = new Container(new BoxLayout(Axis.X, FillMode.Even)); 
+        actWinMain.addChild(new Label("Actions"), BorderLayout.Position.North); 
+        actWinMain.addChild(actionWindow, BorderLayout.Position.Center); 
+        //mainWindow.addChild(actWinMain, BorderLayout.Position.West); 
+        Button hit = actionWindow.addChild(new Button("HIT")); 
+        Button stand = actionWindow.addChild(new Button("STAND")); 
+        Button dDown = actionWindow.addChild(new Button("DOUBLE DOWN")); 
+        hit.addClickCommands(new Command<Button>(){ 
+            @Override 
+            public void execute(Button source){ 
+                isHit=true; 
+            } 
+        });
+        stand.addClickCommands(new Command<Button>(){ 
+            @Override 
+            public void execute(Button source){ 
+                isStay=true;
+            } 
+        });
+        dDown.addClickCommands(new Command<Button>(){ 
+            @Override 
+            public void execute(Button source){ 
+                if(bet<=user.getWallet()){
+                    user.deductWallet(bet);
+                    bet*=2;
+                    localRootNode.attachChild(pHand.DrawCard(assetManager));
+                    if(pHand.getTotal()>=21)
+                        phase=PHASES.REVEAL;
+                    else
+                        phase=PHASES.DEALER;
+                } 
+            } 
+        });
+        return actWinMain;
+    }
+    
+    //Key Rebindings
+>>>>>>> 795571e4405e526a776083bf710480620af26682
     private void initKeys(){
         inputManager.deleteMapping(SimpleApplication.INPUT_MAPPING_EXIT);
         inputManager.addMapping("ESCAPE", new KeyTrigger(KeyInput.KEY_ESCAPE));
@@ -262,24 +439,82 @@ public class playState extends AbstractAppState {
         public void onAction(String name, boolean keyPressed, float tpf) {
             if (name.equals("ESCAPE") && !keyPressed) {
                 if(guiNode.getChildIndex(escGUI)==-1){
-                    savedGUI = guiNode.getChildren();
-                    guiNode.detachAllChildren();
+//                    savedGUI = guiNode.getChildren();
+//                    guiNode.detachAllChildren();
                     guiNode.attachChild(escGUI);
                 }
                 else{
                    guiNode.detachChild(escGUI);
-                   for(int i=0; i<savedGUI.size(); i++){
-                        System.out.println("Why isn't this work right?");
-                        guiNode.attachChild((Spatial) savedGUI.remove(i));}
+//                   for(int i=0; i<savedGUI.size(); i++){
+//                        System.out.println("Why isn't this work right?");
+//                        guiNode.attachChild((Spatial) savedGUI.remove(i));}
                 }
                 
             }
         }
     };
     
+<<<<<<< HEAD
     
     
     
+=======
+    private Container getEscMenu(){
+        Container escWindow = new Container(new BorderLayout());
+        escWindow.setLocalTranslation(120, 220,0); 
+        Container escButtons = new Container(new BoxLayout(Axis.Y, FillMode.Even));
+        escWindow.addChild(new Label("Escape Menu"), BorderLayout.Position.North);
+        Button _MainMenu = escButtons.addChild(new Button("Main Menu"));
+        Button _Settings = escButtons.addChild(new Button("SETTINGS"));
+        Button _SaveGame = escButtons.addChild(new Button("Save Game"));
+        Button _Cancel = escButtons.addChild(new Button("Cancel"));
+        escWindow.addChild(escButtons);
+        _MainMenu.addClickCommands(new Command<Button>(){
+            @Override public void execute(Button source){
+                SimpleApplication app =(SimpleApplication) stateManager.getApplication();
+                guiNode.detachAllChildren();
+                stateManager.detach(stateManager.getState(playState.class));
+                stateManager.attach(new mainMenu(app));
+            }
+        });
+        _Settings.addClickCommands(new Command<Button>(){
+            @Override public void execute(Button source){
+                SimpleApplication app =(SimpleApplication) stateManager.getApplication();
+                guiNode.detachAllChildren();
+                stateManager.detach(stateManager.getState(playState.class));
+                stateManager.attach(new settingsState(app));
+            }
+        });
+        _Cancel.addClickCommands(new Command<Button>(){ 
+            @Override 
+            public void execute(Button source){ 
+                if(bet==0){
+                    guiNode.detachChild(escGUI);
+                    guiNode.attachChild(betGUI);
+                }
+                 if(bet>0){
+                    guiNode.detachChild(escGUI);
+                    for(int i=0; i<savedGUI.size(); i++){   //Need to Fix this too...
+                        System.out.println("I assume that this is not working?");
+                        guiNode.attachChild(savedGUI.remove(i));
+                    }
+                }
+            } 
+        });
+        return escWindow;
+    }
+    
+    private void getCountingGUI(){
+        if(guiNode.hasChild(cntGUI)){
+            guiNode.detachChild(cntGUI);
+        }
+        cntGUI = new Container(new BoxLayout(Axis.Y, FillMode.Even));
+        cntGUI.setLocalTranslation(260, 250, 0);
+        cntGUI.addChild(new Label("Dealer: "+ dHand.getTotal()));
+        cntGUI.addChild(new Label("Player: "+ pHand.getTotal()));
+        guiNode.attachChild(cntGUI);
+    }
+>>>>>>> 795571e4405e526a776083bf710480620af26682
     
     
     
