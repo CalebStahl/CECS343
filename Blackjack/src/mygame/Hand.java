@@ -28,6 +28,9 @@ public class Hand{
     
     List<Card> cardsInHand = new ArrayList<>(); //change name
     
+    public Spatial getCard(){
+        return sparray.get(1);
+    }
     
     //Place card
     public void PlaceCard(cardsLoc CARD, Spatial cardImage){
@@ -62,7 +65,7 @@ public class Hand{
                     break;
                 case CARD2:
                     cardImage.setLocalTranslation(-1.0f, 3.5f, 0.0f);
-                    cardImage.setLocalRotation(Quaternion.ZERO);
+                    cardImage.setLocalRotation(new Quaternion(0f,180f,0,1f));
                     break;
                 case CARD3:
                     //Cards 1 and 2 need to start being moved over so update

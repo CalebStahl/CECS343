@@ -18,6 +18,7 @@ import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight; 
 import com.jme3.material.Material; 
 import com.jme3.math.FastMath; 
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f; 
 import com.jme3.scene.Geometry; 
 import com.jme3.scene.Node; 
@@ -71,13 +72,16 @@ public class playState extends AbstractAppState {
     private Hand pHand;
     private Hand dHand;
     private Deck deck;
+    private float revTimer=0f;
+    private float duration= 0.5f;
     
     
     protected Label walNum;     //Lists money in user's wallet
     
     private int bet = 0;
     private double multiplier;
-    
+
+
     //private double 
     public enum PLAYERS{P1, P2, P3,PN}
     public enum PHASES{BET, DRAW, ACTION, SPLIT,DEALER, REVEAL, BROKE};
@@ -99,14 +103,14 @@ public class playState extends AbstractAppState {
         initGame();
         user = new Player("Adam");
         multiplier =1;
-        getCountingGUI();
+//        getCountingGUI();
         //Establishing Basic GUI Theme: CHANGE LATER Green?
         GuiGlobals.initialize((Application) app); 
         BaseStyles.loadGlassStyle(); 
         GuiGlobals.getInstance().getStyles().setDefaultStyle("glass");
          
         betGUI = getBetMenu(); 
-        escGUI = getEscMenu();
+        //escGUI = getEscMenu();
         actionGUI = getActionMenu();
         createTable(); 
         createLight(); 
@@ -118,7 +122,7 @@ public class playState extends AbstractAppState {
         wallet.setLocalTranslation(0, 250, 0); 
         guiNode.attachChild(wallet); 
                          
-        getCountingGUI(); 
+//        getCountingGUI(); 
     } 
     
     private String labelWallet(){
@@ -174,7 +178,7 @@ public class playState extends AbstractAppState {
                 localRootNode.attachChild(dHand.DrawCard(assetManager));
                 localRootNode.attachChild(pHand.DrawCard(assetManager));
                 localRootNode.attachChild(dHand.DrawCard(assetManager));
-                getCountingGUI();
+//                getCountingGUI();
                 if(dHand.getTotal()>=21  || pHand.getTotal()>=21)
                     phase=PHASES.REVEAL;
                 //
@@ -189,7 +193,7 @@ public class playState extends AbstractAppState {
                     phase=PHASES.REVEAL;
                 if(isHit==true){
                     localRootNode.attachChild(pHand.DrawCard(assetManager));
-                    getCountingGUI();
+//                    getCountingGUI();
                     if(dHand.getTotal()>=21  || pHand.getTotal()>=21)
                         phase=PHASES.REVEAL;
                     isHit=false;
@@ -207,11 +211,22 @@ public class playState extends AbstractAppState {
             case DEALER:
                 while(dHand.getTotal()<17)
                     localRootNode.attachChild(dHand.DrawCard(assetManager));
-                getCountingGUI();
+                //getCountingGUI();
                 phase=PHASES.REVEAL;
                 break;
         //Reveal(Final) Phase
             case REVEAL:
+                if(revTimer<duration){
+                    revTimer+=tpf;
+                    Quaternion qua = new Quaternion();
+                    Quaternion q1 = new Quaternion(0f, 0f, 0f, 1f);
+                    Quaternion q2 = new Quaternion(0f, 90f, 0f,1f);
+                    qua.slerp(q2, q1,revTimer/duration);
+                    
+                    dHand.getCard().setLocalRotation(qua);
+                    break;
+                }
+                System.out.println(revTimer);
                 //PLAYER WINS
                 if((pHand.getTotal()>dHand.getTotal()|| dHand.getTotal()>21) && pHand.getTotal()<=21){
                     if(bet>0){
@@ -387,7 +402,7 @@ public class playState extends AbstractAppState {
     //GUI for Bet Menu
     public Container getActionMenu(){
         Container actWinMain = new Container(new BorderLayout());
-        actWinMain.setLocalTranslation(90,50,0);
+        actWinMain.setLocalTranslation(60,50,0);
         Container actionWindow = new Container(new BoxLayout(Axis.X, FillMode.Even)); 
         actWinMain.addChild(new Label("Actions"), BorderLayout.Position.North); 
         actWinMain.addChild(actionWindow, BorderLayout.Position.Center); 
@@ -454,61 +469,61 @@ public class playState extends AbstractAppState {
         }
     };
     
-    private Container getEscMenu(){
-        Container escWindow = new Container(new BorderLayout());
-        escWindow.setLocalTranslation(120, 220,0); 
-        Container escButtons = new Container(new BoxLayout(Axis.Y, FillMode.Even));
-        escWindow.addChild(new Label("Escape Menu"), BorderLayout.Position.North);
-        Button _MainMenu = escButtons.addChild(new Button("Main Menu"));
-        Button _Settings = escButtons.addChild(new Button("SETTINGS"));
-        Button _SaveGame = escButtons.addChild(new Button("Save Game"));
-        Button _Cancel = escButtons.addChild(new Button("Cancel"));
-        escWindow.addChild(escButtons);
-        _MainMenu.addClickCommands(new Command<Button>(){
-            @Override public void execute(Button source){
-                SimpleApplication app =(SimpleApplication) stateManager.getApplication();
-                guiNode.detachAllChildren();
-                stateManager.detach(stateManager.getState(playState.class));
-                stateManager.attach(new mainMenu(app));
-            }
-        });
-        _Settings.addClickCommands(new Command<Button>(){
-            @Override public void execute(Button source){
-                SimpleApplication app =(SimpleApplication) stateManager.getApplication();
-                guiNode.detachAllChildren();
-                stateManager.detach(stateManager.getState(playState.class));
-                stateManager.attach(new settingsState(app));
-            }
-        });
-        _Cancel.addClickCommands(new Command<Button>(){ 
-            @Override 
-            public void execute(Button source){ 
-                if(bet==0){
-                    guiNode.detachChild(escGUI);
-                    guiNode.attachChild(betGUI);
-                }
-                 if(bet>0){
-                    guiNode.detachChild(escGUI);
-                    for(int i=0; i<savedGUI.size(); i++){   //Need to Fix this too...
-                        System.out.println("I assume that this is not working?");
-                        guiNode.attachChild(savedGUI.remove(i));
-                    }
-                }
-            } 
-        });
-        return escWindow;
-    }
+//    private Container getEscMenu(){
+//        Container escWindow = new Container(new BorderLayout());
+//        escWindow.setLocalTranslation(120, 220,0); 
+//        Container escButtons = new Container(new BoxLayout(Axis.Y, FillMode.Even));
+//        escWindow.addChild(new Label("Escape Menu"), BorderLayout.Position.North);
+//        Button _MainMenu = escButtons.addChild(new Button("Main Menu"));
+//        Button _Settings = escButtons.addChild(new Button("SETTINGS"));
+//        Button _SaveGame = escButtons.addChild(new Button("Save Game"));
+//        Button _Cancel = escButtons.addChild(new Button("Cancel"));
+//        escWindow.addChild(escButtons);
+//        _MainMenu.addClickCommands(new Command<Button>(){
+//            @Override public void execute(Button source){
+//                SimpleApplication app =(SimpleApplication) stateManager.getApplication();
+//                guiNode.detachAllChildren();
+//                stateManager.detach(stateManager.getState(playState.class));
+//                stateManager.attach(new mainMenu(app));
+//            }
+//        });
+//        _Settings.addClickCommands(new Command<Button>(){
+//            @Override public void execute(Button source){
+//                SimpleApplication app =(SimpleApplication) stateManager.getApplication();
+//                guiNode.detachAllChildren();
+//                stateManager.detach(stateManager.getState(playState.class));
+//                stateManager.attach(new settingsState(app));
+//            }
+//        });
+//        _Cancel.addClickCommands(new Command<Button>(){ 
+//            @Override 
+//            public void execute(Button source){ 
+//                if(bet==0){
+//                    guiNode.detachChild(escGUI);
+//                    guiNode.attachChild(betGUI);
+//                }
+//                 if(bet>0){
+//                    guiNode.detachChild(escGUI);
+//                    for(int i=0; i<savedGUI.size(); i++){   //Need to Fix this too...
+//                        System.out.println("I assume that this is not working?");
+//                        guiNode.attachChild(savedGUI.remove(i));
+//                    }
+//                }
+//            } 
+//        });
+//        return escWindow;
+//    }
     
-    private void getCountingGUI(){
-        if(guiNode.hasChild(cntGUI)){
-            guiNode.detachChild(cntGUI);
-        }
-        cntGUI = new Container(new BoxLayout(Axis.Y, FillMode.Even));
-        cntGUI.setLocalTranslation(260, 250, 0);
-        cntGUI.addChild(new Label("Dealer: "+ dHand.getTotal()));
-        cntGUI.addChild(new Label("Player: "+ pHand.getTotal()));
-        guiNode.attachChild(cntGUI);
-    }
+//    private void getCountingGUI(){
+//        if(guiNode.hasChild(cntGUI)){
+//            guiNode.detachChild(cntGUI);
+//        }
+//        cntGUI = new Container(new BoxLayout(Axis.Y, FillMode.Even));
+//        cntGUI.setLocalTranslation(260, 250, 0);
+//        cntGUI.addChild(new Label("Dealer: "+ dHand.getTotal()));
+//        cntGUI.addChild(new Label("Player: "+ pHand.getTotal()));
+//        guiNode.attachChild(cntGUI);
+//    }
     
     
     
@@ -516,10 +531,11 @@ public class playState extends AbstractAppState {
         deck = new Deck();        
         pHand = new Hand("player", deck);
         dHand = new Hand("dealer", deck);
-        getCountingGUI();
+        //getCountingGUI();
         phase=PHASES.BET;
         isHit = false; isSplit = false; isStay = false;//Supposed to set false every update?
-
+        revTimer = 0f;
+        duration = 0.5f;
     }
 //        public Spatial createChip(){
 //          pokerChip1 = assetManager.loadModel("Models/PokerChip.j3o");

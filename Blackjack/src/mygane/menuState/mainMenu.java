@@ -109,15 +109,15 @@ public class mainMenu extends AbstractAppState{
         Material pokerMat4 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         pokerMat4.setTexture("ColorMap", assetManager.loadTexture("Textures/blue.jpg"));
         pokerChip4.setMaterial(pokerMat4);
-        pokerChip4.setLocalTranslation(3.5f, 0.0f, 0.0f);
+        pokerChip4.setLocalTranslation(4.0f, 0.0f, 0.0f);
         pokerChip4.rotate(-5.0f,0.0f,0.0f);
         pivot.attachChild(pokerChip4);
         
         Container mmWindow = new Container(new BoxLayout(Axis.X, FillMode.Even));
         guiNode.attachChild(mmWindow);
-        mmWindow.setLocalTranslation(90, 70, 0);
+        mmWindow.setLocalTranslation(100, 70, 0);
         Button playGame = mmWindow.addChild(new Button("Play Game"));
-        Button settings = mmWindow.addChild(new Button("Settings"));
+        //Button settings = mmWindow.addChild(new Button("Settings"));
         playGame.addClickCommands(new Command<Button>(){
             @Override
             public void execute(Button source){
@@ -126,14 +126,14 @@ public class mainMenu extends AbstractAppState{
                 stateManager.attach(new playState(app));
             }
         });
-        settings.addClickCommands(new Command<Button>(){
-            @Override
-            public void execute(Button source){
-                SimpleApplication app =(SimpleApplication) stateManager.getApplication();
-                stateManager.detach(stateManager.getState(mainMenu.class));
-                stateManager.attach(new settingsState((SimpleApplication) stateManager.getApplication()));
-            }
-        });
+//        settings.addClickCommands(new Command<Button>(){
+//            @Override
+//            public void execute(Button source){
+//                SimpleApplication app =(SimpleApplication) stateManager.getApplication();
+//                stateManager.detach(stateManager.getState(mainMenu.class));
+//                stateManager.attach(new settingsState((SimpleApplication) stateManager.getApplication()));
+//            }
+//        });
         Container escButton = new Container(new BoxLayout(Axis.X, FillMode.Even));
         guiNode.attachChild(escButton);
         escButton.setLocalTranslation(250, 250, 0);
