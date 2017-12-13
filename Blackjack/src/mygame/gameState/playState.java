@@ -73,7 +73,7 @@ public class playState extends AbstractAppState {
     private Hand dHand;
     private Deck deck;
     private float revTimer=0f;
-    private float duration= 0.5f;
+    private float duration= 0.1f;
     
     
     protected Label walNum;     //Lists money in user's wallet
@@ -104,13 +104,13 @@ public class playState extends AbstractAppState {
         user = new Player("Adam");
         multiplier =1;
 //        getCountingGUI();
-        //Establishing Basic GUI Theme: CHANGE LATER Green?
+
         GuiGlobals.initialize((Application) app); 
         BaseStyles.loadGlassStyle(); 
         GuiGlobals.getInstance().getStyles().setDefaultStyle("glass");
          
         betGUI = getBetMenu(); 
-        //escGUI = getEscMenu();
+        escGUI = getEscMenu();
         actionGUI = getActionMenu();
         createTable(); 
         createLight(); 
@@ -211,7 +211,7 @@ public class playState extends AbstractAppState {
             case DEALER:
                 while(dHand.getTotal()<17)
                     localRootNode.attachChild(dHand.DrawCard(assetManager));
-                //getCountingGUI();
+//                getCountingGUI();
                 phase=PHASES.REVEAL;
                 break;
         //Reveal(Final) Phase
@@ -366,10 +366,13 @@ public class playState extends AbstractAppState {
     
     //GUI for the game over menu
     public Container getGOmenu(String gameStatus){
+        getCountingGUI();
+        localRootNode.detachAllChildren();
         goGUI = new Container(new BorderLayout());
-        goGUI.setAlpha(100);
-        goGUI.setLocalTranslation(120,210,0);
-        goGUI.addChild(new Label(gameStatus + " Actions\n Play Again?"), BorderLayout.Position.North); 
+        goGUI.setLocalTranslation(100,210,0);
+        Container goMsg = new Container(new BoxLayout(Axis.X, FillMode.Even));
+        goGUI.addChild(goMsg, BorderLayout.Position.North); 
+        goMsg.addChild(new Label(gameStatus + " Actions\n Play Again?"));
         Container guiButtons = new Container(new BoxLayout(Axis.X, FillMode.Even));
         goGUI.addChild(guiButtons, BorderLayout.Position.Center);
         Button yes = guiButtons.addChild(new Button("Yes")); 
@@ -395,7 +398,7 @@ public class playState extends AbstractAppState {
                 stateManager.detach(stateManager.getState(playState.class));
             } 
         });
-        
+        //localRootNode.detachAllChildren();
         return goGUI;
     }
     
@@ -454,39 +457,39 @@ public class playState extends AbstractAppState {
         public void onAction(String name, boolean keyPressed, float tpf) {
             if (name.equals("ESCAPE") && !keyPressed) {
                 if(guiNode.getChildIndex(escGUI)==-1){
-//                    savedGUI = guiNode.getChildren();
-//                    guiNode.detachAllChildren();
+                    savedGUI = guiNode.getChildren();
+                    guiNode.detachAllChildren();
                     guiNode.attachChild(escGUI);
                 }
                 else{
                    guiNode.detachChild(escGUI);
-//                   for(int i=0; i<savedGUI.size(); i++){
-//                        System.out.println("Why isn't this work right?");
-//                        guiNode.attachChild((Spatial) savedGUI.remove(i));}
+                   for(int i=0; i<savedGUI.size(); i++){
+                        System.out.println("Why isn't this work right?");
+                        guiNode.attachChild((Spatial) savedGUI.remove(i));}
                 }
                 
             }
         }
     };
     
-//    private Container getEscMenu(){
-//        Container escWindow = new Container(new BorderLayout());
-//        escWindow.setLocalTranslation(120, 220,0); 
-//        Container escButtons = new Container(new BoxLayout(Axis.Y, FillMode.Even));
-//        escWindow.addChild(new Label("Escape Menu"), BorderLayout.Position.North);
-//        Button _MainMenu = escButtons.addChild(new Button("Main Menu"));
-//        Button _Settings = escButtons.addChild(new Button("SETTINGS"));
-//        Button _SaveGame = escButtons.addChild(new Button("Save Game"));
-//        Button _Cancel = escButtons.addChild(new Button("Cancel"));
-//        escWindow.addChild(escButtons);
-//        _MainMenu.addClickCommands(new Command<Button>(){
-//            @Override public void execute(Button source){
-//                SimpleApplication app =(SimpleApplication) stateManager.getApplication();
-//                guiNode.detachAllChildren();
-//                stateManager.detach(stateManager.getState(playState.class));
-//                stateManager.attach(new mainMenu(app));
-//            }
-//        });
+    private Container getEscMenu(){
+        Container escWindow = new Container(new BorderLayout());
+        escWindow.setLocalTranslation(120, 220,0); 
+        Container escButtons = new Container(new BoxLayout(Axis.Y, FillMode.Even));
+        escWindow.addChild(new Label("Escape Menu"), BorderLayout.Position.North);
+        Button _MainMenu = escButtons.addChild(new Button("Main Menu"));
+        //Button _Settings = escButtons.addChild(new Button("SETTINGS"));
+        //Button _SaveGame = escButtons.addChild(new Button("Save Game"));
+        Button _Cancel = escButtons.addChild(new Button("Cancel"));
+        escWindow.addChild(escButtons);
+        _MainMenu.addClickCommands(new Command<Button>(){
+            @Override public void execute(Button source){
+                SimpleApplication app =(SimpleApplication) stateManager.getApplication();
+                guiNode.detachAllChildren();
+                stateManager.detach(stateManager.getState(playState.class));
+                stateManager.attach(new mainMenu(app));
+            }
+        });
 //        _Settings.addClickCommands(new Command<Button>(){
 //            @Override public void execute(Button source){
 //                SimpleApplication app =(SimpleApplication) stateManager.getApplication();
@@ -495,35 +498,35 @@ public class playState extends AbstractAppState {
 //                stateManager.attach(new settingsState(app));
 //            }
 //        });
-//        _Cancel.addClickCommands(new Command<Button>(){ 
-//            @Override 
-//            public void execute(Button source){ 
-//                if(bet==0){
-//                    guiNode.detachChild(escGUI);
-//                    guiNode.attachChild(betGUI);
-//                }
-//                 if(bet>0){
-//                    guiNode.detachChild(escGUI);
-//                    for(int i=0; i<savedGUI.size(); i++){   //Need to Fix this too...
-//                        System.out.println("I assume that this is not working?");
-//                        guiNode.attachChild(savedGUI.remove(i));
-//                    }
-//                }
-//            } 
-//        });
-//        return escWindow;
-//    }
+        _Cancel.addClickCommands(new Command<Button>(){ 
+            @Override 
+            public void execute(Button source){ 
+                if(bet==0){
+                    guiNode.detachChild(escGUI);
+                    guiNode.attachChild(betGUI);
+                }
+                 if(bet>0){
+                    guiNode.detachChild(escGUI);
+                    for(int i=0; i<savedGUI.size(); i++){   //Need to Fix this too...
+                        System.out.println("I assume that this is not working?");
+                        guiNode.attachChild(savedGUI.remove(i));
+                    }
+                }
+            } 
+        });
+        return escWindow;
+    }
     
-//    private void getCountingGUI(){
-//        if(guiNode.hasChild(cntGUI)){
-//            guiNode.detachChild(cntGUI);
-//        }
-//        cntGUI = new Container(new BoxLayout(Axis.Y, FillMode.Even));
-//        cntGUI.setLocalTranslation(260, 250, 0);
-//        cntGUI.addChild(new Label("Dealer: "+ dHand.getTotal()));
-//        cntGUI.addChild(new Label("Player: "+ pHand.getTotal()));
-//        guiNode.attachChild(cntGUI);
-//    }
+    private void getCountingGUI(){
+        if(guiNode.hasChild(cntGUI)){
+            guiNode.detachChild(cntGUI);
+        }
+        cntGUI = new Container(new BoxLayout(Axis.Y, FillMode.Even));
+        cntGUI.setLocalTranslation(250, 250, 0);
+        cntGUI.addChild(new Label("Dealer: "+ dHand.getTotal()));
+        cntGUI.addChild(new Label("Player: "+ pHand.getTotal()));
+        guiNode.attachChild(cntGUI);
+    }
     
     
     
@@ -531,44 +534,14 @@ public class playState extends AbstractAppState {
         deck = new Deck();        
         pHand = new Hand("player", deck);
         dHand = new Hand("dealer", deck);
-        //getCountingGUI();
+//        getCountingGUI();
         phase=PHASES.BET;
         isHit = false; isSplit = false; isStay = false;//Supposed to set false every update?
         revTimer = 0f;
         duration = 0.5f;
     }
-//        public Spatial createChip(){
-//          pokerChip1 = assetManager.loadModel("Models/PokerChip.j3o");
-//          Material pokerMat1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-//          pokerMat1.setTexture("ColorMap", assetManager.loadTexture("Textures/green.jpg"));
-//          pokerChip1.setMaterial(pokerMat1);
-//          pokerChip1.setLocalTranslation(-5.0f, 0.0f, 0.0f);
-//          pokerChip1.rotate(-5.0f,0.0f,0.0f);
-//          pivot.attachChild(pokerChip1);
-//        
-//          pokerChip2 = assetManager.loadModel("Models/PokerChip.j3o");
-//          Material pokerMat2 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-//          pokerMat2.setTexture("ColorMap", assetManager.loadTexture("Textures/black.jpg"));
-//          pokerChip2.setMaterial(pokerMat2);
-//          pokerChip2.setLocalTranslation(-2.5f, 0.0f, 0.0f);
-//          pokerChip2.rotate(-5.0f,0.0f,0.0f);
-//          pivot.attachChild(pokerChip2);
-//            
-//          pokerChip3 = assetManager.loadModel("Models/PokerChip.j3o");
-//          Material pokerMat3 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-//          pokerMat3.setTexture("ColorMap", assetManager.loadTexture("Textures/red.jpg"));
-//          pokerChip3.setMaterial(pokerMat3);
-//          pokerChip3.setLocalTranslation(0.0f, 0.0f, 0.0f);
-//          pokerChip3.rotate(-5.0f,0.0f,0.0f);
-//          pivot.attachChild(pokerChip3);
-//        
-//          pokerChip4 = assetManager.loadModel("Models/PokerChip.j3o");
-//          Material pokerMat4 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-//          pokerMat4.setTexture("ColorMap", assetManager.loadTexture("Textures/blue.jpg"));
-//          pokerChip4.setMaterial(pokerMat4);
-//          pokerChip4.setLocalTranslation(2.5f, 0.0f, 0.0f);
-//          pokerChip4.rotate(-5.0f,0.0f,0.0f);
-//          pivot.attachChild(pokerChip4);
-//    }
-
+    
+    public  boolean isReveal(){
+        return phase == PHASES.REVEAL;
+    }
 } 

@@ -8,6 +8,7 @@ import com.jme3.math.Quaternion;
 import com.jme3.scene.Spatial;
 import java.util.ArrayList;
 import java.util.List;
+import mygame.gameState.playState;
 
 
 
@@ -17,7 +18,6 @@ public class Hand{
     Deck deck;
     List<Spatial> sparray;
     public enum cardsLoc{CARD1, CARD2, CARD3, CARD4}
-    
     //Constructor
     public Hand(String participant, Deck deckInPlay){
         owner = participant;
@@ -65,7 +65,7 @@ public class Hand{
                     break;
                 case CARD2:
                     cardImage.setLocalTranslation(-1.0f, 3.5f, 0.0f);
-                    cardImage.setLocalRotation(new Quaternion(0f,180f,0,1f));
+                    cardImage.setLocalRotation(new Quaternion(0f,180f,0,1f));                    
                     break;
                 case CARD3:
                     //Cards 1 and 2 need to start being moved over so update
@@ -116,13 +116,14 @@ public class Hand{
             total = total + card.getValue();
         }
         
+        
         //The default value for getValue is 1
         //After the total has been calculated for aces at the lower value,
         //if there's a large enough difference, one of the aces is effectively 
         //changed to 11.
         if((21 - total) >= 10 && aceCount >= 1)
             total = total + 10;
-        
+
         return total;    
     }
     
