@@ -23,3 +23,5 @@ Compile Source Code
 	a. If you want to use an existing, separate IDE follow instructions at https://jmonkeyengine.github.io/wiki/ to get the JME library to work with it.
 2. Our game has 4 dependencies which are listed above. They are included, under Blackjack>EXT LIBS 	  folder.
 3. All the is required now is to run compile and run the program. 
+
+NOTE: There is a JAR executable in Blackjack>dist>MyGame.jar that can be ran if compiling is not an option.

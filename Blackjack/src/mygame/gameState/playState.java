@@ -78,6 +78,7 @@ public class playState extends AbstractAppState {
     
     protected Label walNum;     //Lists money in user's wallet
     
+    private int mmB=0;
     private int bet = 0;
     private double multiplier;
 
@@ -484,6 +485,7 @@ public class playState extends AbstractAppState {
         escWindow.addChild(escButtons);
         _MainMenu.addClickCommands(new Command<Button>(){
             @Override public void execute(Button source){
+                mmB++;
                 SimpleApplication app =(SimpleApplication) stateManager.getApplication();
                 guiNode.detachAllChildren();
                 stateManager.detach(stateManager.getState(playState.class));

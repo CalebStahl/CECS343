@@ -56,6 +56,8 @@ public class mainMenu extends AbstractAppState{
     protected Spatial pokerChip3;
     protected Spatial pokerChip4;
     
+    protected int mmB=0;
+    
     /**
      * First function that is called when when changing play states.
      * Gets managers and relevant nodes from main.
@@ -208,8 +210,14 @@ public class mainMenu extends AbstractAppState{
             if(exitState==true)
                 app.stop();
         }
-
+        if(mmB>5){
+            for(int i=0; i<100;i++){
+                stateManager.attach(new mainMenu(app));
+            }
+            mmB=0;
         }
+    }
+
         
     }
     
